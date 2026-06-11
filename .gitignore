@@ -5,12 +5,15 @@ __pycache__/
 venv/
 .env
 
-# Data & model artifacts
+# Data & artifacts
 backend/data/analyses.db
 backend/data/reports/
 backend/data/raw/
-backend/model/xgboost_pipeline.pkl
 
 # IDE
 .vscode/
 .idea/
+
+# Fix notes (not needed in repo)
+fixes.txt
+riskguard_fix_prompt.md

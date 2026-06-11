@@ -4,9 +4,8 @@
  */
 
 /* === Constants === */
-const RISK_LABELS = ['Faible', 'Modéré', 'Élevé', 'Critique'];
+const RISK_LABELS = ['Faible', 'Modéré', 'Élevé', 'Très élevé'];
 const RISK_COLORS = ['#10b981', '#f59e0b', '#f97316', '#ef4444'];
-const RISK_CLASSES = ['badge-low', 'badge-medium', 'badge-high', 'badge-critical'];
 
 /**
  * Format a date string to French locale.
@@ -27,27 +26,6 @@ function formatCurrentDate() {
     return new Date().toLocaleDateString('fr-FR', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
-}
-
-/**
- * Get risk badge HTML.
- * @param {number} riskClass - 0-3
- * @returns {string}
- */
-function riskBadge(riskClass) {
-    return `<span class="badge ${RISK_CLASSES[riskClass]}">${RISK_LABELS[riskClass]}</span>`;
-}
-
-/**
- * Get color for a risk score.
- * @param {number} score - 0-100
- * @returns {string}
- */
-function scoreColor(score) {
-    if (score < 25) return RISK_COLORS[0];
-    if (score < 50) return RISK_COLORS[1];
-    if (score < 75) return RISK_COLORS[2];
-    return RISK_COLORS[3];
 }
 
 /**

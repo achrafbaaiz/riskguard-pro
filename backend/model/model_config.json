@@ -1,0 +1,103 @@
+{
+  "top_features": [
+    "Net Income to Total Assets",
+    "Retained Earnings to Total Assets",
+    "Persistent EPS in the Last Four Seasons",
+    "Net worth/Assets",
+    "Debt ratio %",
+    "Total debt/Total net worth",
+    "Borrowing dependency",
+    "Liability to Equity",
+    "Current Ratio",
+    "Continuous interest rate (after tax)"
+  ],
+  "threshold": 0.3800000000000002,
+  "feature_medians": {
+    "Net Income to Total Assets": 0.800956985938392,
+    "Retained Earnings to Total Assets": 0.932969279767836,
+    "Persistent EPS in the Last Four Seasons": 0.221045665122435,
+    "Net worth/Assets": 0.861353810805091,
+    "Debt ratio %": 0.138495026755752,
+    "Total debt/Total net worth": 0.0082820379540211,
+    "Borrowing dependency": 0.374231406696296,
+    "Liability to Equity": 0.280244587481477,
+    "Current Ratio": 0.0152398900471449,
+    "Continuous interest rate (after tax)": 0.781587518396538
+  },
+  "all_feature_names": [
+    "Net Income to Total Assets",
+    "Retained Earnings to Total Assets",
+    "Persistent EPS in the Last Four Seasons",
+    "Net worth/Assets",
+    "Debt ratio %",
+    "Total debt/Total net worth",
+    "Borrowing dependency",
+    "Liability to Equity",
+    "Current Ratio",
+    "Continuous interest rate (after tax)"
+  ],
+  "training_date": "2026-06-11T15:21:59.976496",
+  "dataset_shape": [
+    9819,
+    11
+  ],
+  "metrics": {
+    "roc_auc": 0.9891,
+    "pr_auc": 0.9689,
+    "f1_score": 0.9188,
+    "recall_bankrupt": 0.898,
+    "precision_bankrupt": 0.9407
+  },
+  "feature_importance": [
+    {
+      "feature": "Debt ratio %",
+      "importance": 0.381843
+    },
+    {
+      "feature": "Net Income to Total Assets",
+      "importance": 0.171353
+    },
+    {
+      "feature": "Retained Earnings to Total Assets",
+      "importance": 0.149881
+    },
+    {
+      "feature": "Net worth/Assets",
+      "importance": 0.094819
+    },
+    {
+      "feature": "Total debt/Total net worth",
+      "importance": 0.055377
+    },
+    {
+      "feature": "Liability to Equity",
+      "importance": 0.047589
+    },
+    {
+      "feature": "Persistent EPS in the Last Four Seasons",
+      "importance": 0.045929
+    },
+    {
+      "feature": "Borrowing dependency",
+      "importance": 0.021715
+    },
+    {
+      "feature": "Current Ratio",
+      "importance": 0.020676
+    },
+    {
+      "feature": "Continuous interest rate (after tax)",
+      "importance": 0.010818
+    }
+  ],
+  "confusion_matrix": [
+    [
+      1591,
+      20
+    ],
+    [
+      36,
+      317
+    ]
+  ]
+}

@@ -292,3 +292,120 @@
 }
 
 .score-fill { height: 100%; border-radius: 2px; }
+
+
+/* === Preset Buttons === */
+.presets-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    flex-wrap: wrap;
+}
+
+.presets-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.preset-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.preset-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+.preset-healthy:hover, .preset-healthy.active { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #10b981; }
+.preset-medium:hover, .preset-medium.active { background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #f59e0b; }
+.preset-high:hover, .preset-high.active { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444; }
+
+@keyframes inputFlash {
+    0% { background: rgba(99, 102, 241, 0.2); }
+    100% { background: transparent; }
+}
+
+
+/* === Batch Results === */
+.batch-stats {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+}
+
+.batch-stat {
+    font-size: 0.85rem;
+}
+
+
+/* === Live Preview === */
+.live-preview-card {
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    background: rgba(37, 99, 235, 0.03);
+}
+
+.live-preview {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.live-preview-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.live-preview-label i {
+    margin-right: 6px;
+}
+
+.live-meter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.live-meter-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.live-meter-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--text-muted);
+    transition: width 0.4s ease, background 0.4s ease;
+    width: 0%;
+}
+
+.live-meter-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    min-width: 45px;
+    text-align: right;
+    transition: color 0.4s ease;
+}

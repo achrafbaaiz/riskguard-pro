@@ -196,8 +196,38 @@
                     <div class="card">
                         <h3 class="card-title"><i class="fas fa-calculator"></i> Ratios financiers</h3>
                         <p class="card-subtitle">Renseignez les indicateurs financiers de l'entreprise (valeurs entre 0 et 1 pour les ratios).</p>
+
+                        <!-- Preset Buttons -->
+                        <div class="presets-container">
+                            <span class="presets-label">Remplissage rapide :</span>
+                            <button type="button" class="preset-btn preset-healthy" onclick="fillPreset('healthy')">
+                                <i class="fas fa-shield-check"></i> Entreprise saine
+                            </button>
+                            <button type="button" class="preset-btn preset-medium" onclick="fillPreset('medium')">
+                                <i class="fas fa-exclamation-circle"></i> Risque modéré
+                            </button>
+                            <button type="button" class="preset-btn preset-high" onclick="fillPreset('high')">
+                                <i class="fas fa-skull-crossbones"></i> Risque élevé
+                            </button>
+                        </div>
+
                         <div class="form-grid" id="featuresGrid">
                             <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Live Risk Preview -->
+                    <div class="card live-preview-card">
+                        <div class="live-preview">
+                            <div class="live-preview-label">
+                                <i class="fas fa-bolt"></i> Aperçu en direct
+                            </div>
+                            <div class="live-meter">
+                                <div class="live-meter-track">
+                                    <div class="live-meter-fill" id="liveMeterFill"></div>
+                                </div>
+                                <span class="live-meter-value" id="liveMeterValue">—</span>
+                            </div>
                         </div>
                     </div>
 
@@ -225,6 +255,25 @@
                         <button class="btn btn-primary" id="batchAnalyzeBtn">Analyser</button>
                     </div>
                 </div>
+
+                <!-- Batch Results -->
+                <div class="card" id="batchResults" style="display:none;">
+                    <h3 class="card-title"><i class="fas fa-table"></i> Résultats de l'analyse batch</h3>
+                    <div class="batch-summary" id="batchSummary"></div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Entreprise</th>
+                                    <th>Probabilité</th>
+                                    <th>Risque</th>
+                                </tr>
+                            </thead>
+                            <tbody id="batchTable"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -235,44 +284,31 @@
                 <p class="page-subtitle" id="resultDate"></p>
             </header>
 
-            <!-- Risk Gauge -->
+            <!-- Risk Result Card -->
             <div class="card result-hero">
-                <div class="gauge-container">
-                    <svg class="gauge" viewBox="0 0 200 120" id="riskGauge">
-                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
-                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGradient)" stroke-width="12" stroke-linecap="round" id="gaugeArc" stroke-dasharray="0 251"/>
-                        <defs>
-                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#10b981"/>
-                                <stop offset="33%" stop-color="#f59e0b"/>
-                                <stop offset="66%" stop-color="#f97316"/>
-                                <stop offset="100%" stop-color="#ef4444"/>
-                            </linearGradient>
-                        </defs>
-                        <text x="100" y="85" text-anchor="middle" class="gauge-score" id="gaugeScore">—</text>
-                        <text x="100" y="110" text-anchor="middle" class="gauge-label" id="gaugeLabel">—</text>
-                    </svg>
+                <div style="text-align:center;padding:2rem 0">
+                    <p style="font-size:1.1rem;color:var(--text-secondary);margin-bottom:0.5rem">Probabilité de faillite</p>
+                    <p style="font-size:3.5rem;font-weight:700;margin:0" id="resultProbability">—</p>
+                    <div style="margin-top:1rem">
+                        <span class="risk-badge" id="resultBadge">—</span>
+                    </div>
+                    <!-- Progress bar -->
+                    <div style="margin-top:1.5rem;max-width:400px;margin-left:auto;margin-right:auto">
+                        <div style="background:rgba(255,255,255,0.1);border-radius:8px;height:12px;overflow:hidden">
+                            <div id="resultProgressBar" style="height:100%;border-radius:8px;transition:width 1.5s ease;width:0%"></div>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Probability Bars -->
-                <div class="prob-bars" id="probBars"></div>
             </div>
 
-            <!-- SHAP & Recommendations -->
-            <div class="results-grid">
-                <div class="card">
-                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Impact des facteurs (SHAP)</h3>
-                    <canvas id="shapChart"></canvas>
-                </div>
-                <div class="card">
-                    <h3 class="card-title"><i class="fas fa-lightbulb"></i> Recommandations</h3>
-                    <div id="recommendations" class="recs-list"></div>
-                </div>
+            <!-- Recommendations -->
+            <div class="card">
+                <h3 class="card-title"><i class="fas fa-lightbulb"></i> Recommandations</h3>
+                <div id="recommendations" class="recs-list"></div>
             </div>
 
             <!-- Actions -->
             <div class="result-actions">
-                <button class="btn btn-outline" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Exporter PDF</button>
                 <a href="#analyse" class="btn btn-primary"><i class="fas fa-plus"></i> Nouvelle analyse</a>
                 <a href="#historique" class="btn btn-outline"><i class="fas fa-clock-rotate-left"></i> Historique</a>
             </div>
@@ -282,6 +318,9 @@
         <section class="page" id="page-historique" style="display:none;">
             <header class="page-header">
                 <h1 class="page-title">Historique des analyses</h1>
+                <button class="btn btn-outline" style="color:#ef4444;border-color:#ef4444" onclick="deleteAllHistory()">
+                    <i class="fas fa-trash"></i> Tout supprimer
+                </button>
             </header>
 
             <div class="card">
@@ -292,10 +331,10 @@
                     </div>
                     <div class="filter-chips" id="riskFilters">
                         <button class="chip active" data-risk="">Tous</button>
-                        <button class="chip" data-risk="0">Faible</button>
-                        <button class="chip" data-risk="1">Modéré</button>
-                        <button class="chip" data-risk="2">Élevé</button>
-                        <button class="chip" data-risk="3">Critique</button>
+                        <button class="chip" data-risk="Faible">Faible</button>
+                        <button class="chip" data-risk="Modéré">Modéré</button>
+                        <button class="chip" data-risk="Élevé">Élevé</button>
+                        <button class="chip" data-risk="Très élevé">Très élevé</button>
                     </div>
                 </div>
 
@@ -335,11 +374,11 @@
             </div>
 
             <div class="kpi-grid">
-                <div class="kpi-card"><div class="kpi-icon blue"><i class="fas fa-bullseye"></i></div><div class="kpi-content"><span class="kpi-value" id="metricAccuracy">—</span><span class="kpi-label">Accuracy</span></div></div>
-                <div class="kpi-card"><div class="kpi-icon green"><i class="fas fa-crosshairs"></i></div><div class="kpi-content"><span class="kpi-value" id="metricPrecision">—</span><span class="kpi-label">Precision</span></div></div>
-                <div class="kpi-card"><div class="kpi-icon amber"><i class="fas fa-arrows-to-dot"></i></div><div class="kpi-content"><span class="kpi-value" id="metricRecall">—</span><span class="kpi-label">Recall</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon green"><i class="fas fa-chart-area"></i></div><div class="kpi-content"><span class="kpi-value" id="metricRocAuc">—</span><span class="kpi-label">ROC-AUC</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon blue"><i class="fas fa-bullseye"></i></div><div class="kpi-content"><span class="kpi-value" id="metricPrAuc">—</span><span class="kpi-label">PR-AUC</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon amber"><i class="fas fa-arrows-to-dot"></i></div><div class="kpi-content"><span class="kpi-value" id="metricRecall">—</span><span class="kpi-label">Recall (Bankrupt)</span></div></div>
                 <div class="kpi-card"><div class="kpi-icon purple"><i class="fas fa-scale-balanced"></i></div><div class="kpi-content"><span class="kpi-value" id="metricF1">—</span><span class="kpi-label">F1-Score</span></div></div>
-                <div class="kpi-card"><div class="kpi-icon red"><i class="fas fa-chart-area"></i></div><div class="kpi-content"><span class="kpi-value" id="metricAuc">—</span><span class="kpi-label">AUC-ROC</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon red"><i class="fas fa-crosshairs"></i></div><div class="kpi-content"><span class="kpi-value" id="metricThreshold">—</span><span class="kpi-label">Seuil optimal</span></div></div>
             </div>
 
             <div class="charts-grid">

@@ -1,32 +1,81 @@
 /**
- * RiskGuard Pro — Main Application
+ * RiskGuard Pro — Main Application (v2)
  * SPA router, state management, page controllers.
+ * Uses new probability/risk_label/color response format.
  */
 
 let currentResult = null;
 let modelFeatures = [];
 
+/* === Presets === */
+const PRESETS = {
+    healthy: {
+        "Net Income to Total Assets": 0.85,
+        "Retained Earnings to Total Assets": 0.95,
+        "Persistent EPS in the Last Four Seasons": 0.28,
+        "Net worth/Assets": 0.90,
+        "Debt ratio %": 0.10,
+        "Total debt/Total net worth": 0.01,
+        "Borrowing dependency": 0.30,
+        "Liability to Equity": 0.15,
+        "Current Ratio": 0.80,
+        "Continuous interest rate (after tax)": 0.80
+    },
+    medium: {
+        "Net Income to Total Assets": 0.55,
+        "Retained Earnings to Total Assets": 0.62,
+        "Persistent EPS in the Last Four Seasons": 0.12,
+        "Net worth/Assets": 0.52,
+        "Debt ratio %": 0.43,
+        "Total debt/Total net worth": 0.15,
+        "Borrowing dependency": 0.45,
+        "Liability to Equity": 0.38,
+        "Current Ratio": 0.50,
+        "Continuous interest rate (after tax)": 0.63
+    },
+    high: {
+        "Net Income to Total Assets": 0.25,
+        "Retained Earnings to Total Assets": 0.35,
+        "Persistent EPS in the Last Four Seasons": 0.04,
+        "Net worth/Assets": 0.22,
+        "Debt ratio %": 0.75,
+        "Total debt/Total net worth": 0.55,
+        "Borrowing dependency": 0.72,
+        "Liability to Equity": 0.75,
+        "Current Ratio": 0.28,
+        "Continuous interest rate (after tax)": 0.42
+    }
+};
+
+function fillPreset(level) {
+    const values = PRESETS[level];
+    document.querySelectorAll('#featuresGrid input').forEach(input => {
+        if (values[input.name] !== undefined) {
+            input.value = values[input.name];
+            input.style.animation = 'none';
+            input.offsetHeight;
+            input.style.animation = 'inputFlash 0.4s ease';
+        }
+    });
+    // Highlight active preset button
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.preset-${level}`)?.classList.add('active');
+    updateLivePreview();
+}
+
 /* === Router === */
 function navigate() {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
-    
-    // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    
-    // Show target page
     const page = document.getElementById(`page-${hash}`);
     if (page) {
         page.style.display = 'block';
         page.style.animation = 'none';
-        page.offsetHeight; // reflow
+        page.offsetHeight;
         page.style.animation = 'fadeIn 0.3s ease';
     }
-
-    // Update nav
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.querySelector(`.nav-item[data-page="${hash}"]`)?.classList.add('active');
-
-    // Load page data
     loadPage(hash);
 }
 
@@ -43,44 +92,43 @@ async function loadPage(page) {
 /* === Dashboard === */
 async function loadDashboard() {
     document.getElementById('currentDate').textContent = formatCurrentDate();
-    
     const history = await API.getHistory(1);
     const data = history.data || [];
-    
-    // KPIs
+
     const total = history.total || data.length;
-    const high = data.filter(d => d.risk_class >= 2).length;
-    const low = data.filter(d => d.risk_class < 2).length;
-    const avg = data.length ? Math.round(data.reduce((s, d) => s + d.risk_score, 0) / data.length) : 0;
-    
+    const high = data.filter(d => d.risk_label === 'Élevé' || d.risk_label === 'Très élevé').length;
+    const low = data.filter(d => d.risk_label === 'Faible' || d.risk_label === 'Modéré').length;
+    const avg = data.length ? Math.round(data.reduce((s, d) => s + d.probability, 0) / data.length) : 0;
+
     document.getElementById('kpiTotal').textContent = total;
     document.getElementById('kpiHigh').textContent = high;
     document.getElementById('kpiLow').textContent = low;
-    document.getElementById('kpiAvg').textContent = avg + '/100';
-    
+    document.getElementById('kpiAvg').textContent = avg + '%';
+
     // Distribution chart
     const dist = [0, 0, 0, 0];
-    data.forEach(d => dist[d.risk_class]++);
+    data.forEach(d => {
+        if (d.risk_label === 'Faible') dist[0]++;
+        else if (d.risk_label === 'Modéré') dist[1]++;
+        else if (d.risk_label === 'Élevé') dist[2]++;
+        else dist[3]++;
+    });
     renderDonutChart(dist);
-    
-    // Trend chart (mock monthly data)
+
     renderTrendChart({
         labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-        scores: [35, 42, 38, 45, 40, avg || 37],
+        scores: [12, 18, 15, 22, 19, avg || 15],
         counts: [2, 4, 3, 5, 4, high || 3]
     });
-    
+
     // Recent table
     const tbody = document.getElementById('recentTable');
     tbody.innerHTML = data.slice(0, 10).map(d => `
         <tr>
             <td style="color:var(--text-primary);font-weight:500">${d.company_name}</td>
             <td>${d.sector || '—'}</td>
-            <td>
-                <span class="score-bar"><span class="score-fill" style="width:${d.risk_score}%;background:${scoreColor(d.risk_score)}"></span></span>
-                ${Math.round(d.risk_score)}
-            </td>
-            <td>${riskBadge(d.risk_class)}</td>
+            <td>${d.probability}%</td>
+            <td>${riskBadge(d.risk_label, d.color)}</td>
             <td>${formatDate(d.created_at)}</td>
             <td><button class="btn btn-outline" style="padding:0.3rem 0.7rem;font-size:0.75rem" onclick="viewResult('${d.id}')">Voir</button></td>
         </tr>
@@ -89,7 +137,6 @@ async function loadDashboard() {
 
 /* === Analyse Page === */
 async function loadAnalysePage() {
-    // Tabs
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -98,17 +145,14 @@ async function loadAnalysePage() {
             document.getElementById('tab-upload').style.display = tab.dataset.tab === 'upload' ? 'block' : 'none';
         };
     });
-    
-    // Load features
+
     if (!modelFeatures.length) {
         modelFeatures = await API.getFeatures();
     }
-    
+
     const grid = document.getElementById('featuresGrid');
     if (grid && !grid.children.length) {
-        // Show top 15 most important features for the form
-        const topFeatures = modelFeatures.slice(0, 15);
-        grid.innerHTML = topFeatures.map(feat => {
+        grid.innerHTML = modelFeatures.map(feat => {
             const def = featureDefaults[feat];
             const placeholder = def !== undefined ? parseFloat(def).toFixed(3) : '0.0';
             return `
@@ -119,42 +163,74 @@ async function loadAnalysePage() {
         `}).join('');
     }
 
-    // Form submit
-    const form = document.getElementById('analyzeForm');
-    form.onsubmit = async (e) => {
+    document.getElementById('analyzeForm').onsubmit = async (e) => {
         e.preventDefault();
         await runAnalysis();
     };
-    
+
+    // Live preview: update risk meter as user types
+    document.getElementById('featuresGrid').addEventListener('input', updateLivePreview);
+
     initUpload();
+}
+
+function updateLivePreview() {
+    const inputs = document.querySelectorAll('#featuresGrid input');
+    let filled = 0;
+    let riskSignal = 0;
+
+    // Simple heuristic: positive indicators (high=safe) vs negative (high=risky)
+    const positiveFeatures = ['Net Income to Total Assets', 'Retained Earnings to Total Assets',
+        'Persistent EPS in the Last Four Seasons', 'Net worth/Assets', 'Current Ratio',
+        'Continuous interest rate (after tax)'];
+
+    inputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) {
+            filled++;
+            if (positiveFeatures.includes(input.name)) {
+                riskSignal += (1 - val); // low value = more risk
+            } else {
+                riskSignal += val; // high value = more risk
+            }
+        }
+    });
+
+    const meter = document.getElementById('liveMeterFill');
+    const label = document.getElementById('liveMeterValue');
+
+    if (filled === 0) {
+        meter.style.width = '0%';
+        label.textContent = '—';
+        return;
+    }
+
+    const risk = Math.min(100, Math.max(0, (riskSignal / filled) * 100));
+    const color = risk < 25 ? '#10b981' : risk < 50 ? '#f59e0b' : risk < 70 ? '#f97316' : '#ef4444';
+
+    meter.style.width = risk + '%';
+    meter.style.background = color;
+    label.textContent = Math.round(risk) + '%';
+    label.style.color = color;
 }
 
 async function runAnalysis() {
     const name = document.getElementById('companyName').value.trim();
     if (!name) { Toast.show('Veuillez saisir le nom de l\'entreprise.', 'warning'); return; }
-    
+
     const sector = document.getElementById('companySector').value;
     const size = document.getElementById('companySize').value;
-    
-    // Collect features - use defaults (medians) for empty fields
+
     const features = {};
     document.querySelectorAll('#featuresGrid input').forEach(input => {
         const val = input.value.trim();
         features[input.name] = val !== '' ? parseFloat(val) : (featureDefaults[input.name] || 0);
     });
-    // Fill remaining features with their defaults
-    modelFeatures.forEach(feat => {
-        if (!(feat in features)) {
-            features[feat] = featureDefaults[feat] || 0;
-        }
-    });
-    
+
     document.getElementById('loadingOverlay').style.display = 'flex';
-    
     const result = await API.analyze(name, sector, size, features);
-    
     document.getElementById('loadingOverlay').style.display = 'none';
-    
+
     if (result) {
         currentResult = result;
         Storage.set('lastResult', result);
@@ -174,58 +250,41 @@ function loadResultsPage() {
                 <i class="fas fa-chart-pie" style="font-size:3rem;color:var(--text-muted);margin-bottom:1rem"></i>
                 <p style="color:var(--text-secondary)">Aucun résultat disponible. Lancez une analyse d'abord.</p>
                 <a href="#analyse" class="btn btn-primary" style="margin-top:1rem">Nouvelle analyse</a>
-            </div>
-        `;
+            </div>`;
         return;
     }
-    
-    // Company name & date
+
     document.getElementById('resultCompanyName').textContent = result.company_name || 'Résultat';
     document.getElementById('resultDate').textContent = formatDate(result.created_at || new Date().toISOString());
-    
-    // Gauge animation
-    const score = result.risk_score;
-    const arcLength = (score / 100) * 251;
-    const gaugeArc = document.getElementById('gaugeArc');
+
+    // Probability display
+    const colorMap = { green: '#10b981', yellow: '#f59e0b', orange: '#f97316', red: '#ef4444' };
+    const c = colorMap[result.color] || '#6b7280';
+
+    document.getElementById('resultProbability').textContent = result.probability + '%';
+    document.getElementById('resultProbability').style.color = c;
+
+    const badge = document.getElementById('resultBadge');
+    badge.textContent = result.risk_label;
+    badge.style.background = c;
+    badge.style.color = '#fff';
+    badge.style.padding = '0.5rem 1.5rem';
+    badge.style.borderRadius = '20px';
+    badge.style.fontSize = '1rem';
+    badge.style.fontWeight = '600';
+
+    // Progress bar
+    const bar = document.getElementById('resultProgressBar');
     setTimeout(() => {
-        gaugeArc.style.transition = 'stroke-dasharray 1.5s ease';
-        gaugeArc.setAttribute('stroke-dasharray', `${arcLength} 251`);
+        bar.style.width = result.probability + '%';
+        bar.style.background = c;
     }, 200);
-    
-    document.getElementById('gaugeScore').textContent = Math.round(score);
-    const gaugeLabel = document.getElementById('gaugeLabel');
-    gaugeLabel.textContent = result.risk_label;
-    gaugeLabel.style.fill = RISK_COLORS[result.risk_class];
-    
-    // Probability bars
-    const probBars = document.getElementById('probBars');
-    probBars.innerHTML = result.probabilities.map((p, i) => `
-        <div class="prob-item">
-            <span class="prob-label">${RISK_LABELS[i]}</span>
-            <div class="prob-bar"><div class="prob-fill" style="width:${p*100}%;background:${RISK_COLORS[i]}"></div></div>
-            <span class="prob-value" style="color:${RISK_COLORS[i]}">${(p*100).toFixed(1)}%</span>
-        </div>
-    `).join('');
-    
-    // SHAP chart
-    if (result.shap_values && result.shap_values.length) {
-        renderShapChart(result.shap_values);
-    }
-    
+
     // Recommendations
     const recs = document.getElementById('recommendations');
     recs.innerHTML = (result.recommendations || []).map(r => `
         <div class="rec-item"><i class="fas fa-lightbulb"></i><span>${r}</span></div>
     `).join('');
-    
-    // Export PDF button
-    document.getElementById('exportPdfBtn').onclick = () => {
-        if (result.analysis_id && !result.analysis_id.startsWith('demo')) {
-            window.open(`${API_BASE}/api/export/${result.analysis_id}`);
-        } else {
-            Toast.show('Export PDF disponible uniquement avec le backend.', 'info');
-        }
-    };
 }
 
 /* === History Page === */
@@ -234,21 +293,18 @@ let historyFilter = '';
 let historySearch = '';
 
 async function loadHistory() {
-    const data = await API.getHistory(historyPage, historyFilter, historySearch);
-    
+    const data = await API.getHistory(historyPage, historyFilter || null, historySearch);
+
     document.getElementById('historyCount').textContent = `${data.total} analyses trouvées`;
-    
+
     const tbody = document.getElementById('historyTable');
     tbody.innerHTML = data.data.map((d, i) => `
         <tr>
             <td>${(data.page - 1) * 20 + i + 1}</td>
             <td style="color:var(--text-primary);font-weight:500">${d.company_name}</td>
             <td>${d.sector || '—'}</td>
-            <td>
-                <span class="score-bar"><span class="score-fill" style="width:${d.risk_score}%;background:${scoreColor(d.risk_score)}"></span></span>
-                ${Math.round(d.risk_score)}
-            </td>
-            <td>${riskBadge(d.risk_class)}</td>
+            <td>${d.probability}%</td>
+            <td>${riskBadge(d.risk_label, d.color)}</td>
             <td>${formatDate(d.created_at)}</td>
             <td>
                 <button class="btn btn-outline" style="padding:0.3rem 0.6rem;font-size:0.7rem" onclick="viewResult('${d.id}')">Voir</button>
@@ -258,7 +314,7 @@ async function loadHistory() {
             </td>
         </tr>
     `).join('');
-    
+
     // Pagination
     const pagination = document.getElementById('pagination');
     if (data.pages > 1) {
@@ -267,10 +323,8 @@ async function loadHistory() {
             html += `<button class="${i === data.page ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
         }
         pagination.innerHTML = html;
-    } else {
-        pagination.innerHTML = '';
-    }
-    
+    } else { pagination.innerHTML = ''; }
+
     // Filter chips
     document.querySelectorAll('#riskFilters .chip').forEach(chip => {
         chip.onclick = () => {
@@ -281,7 +335,7 @@ async function loadHistory() {
             loadHistory();
         };
     });
-    
+
     // Search
     const searchInput = document.getElementById('historySearch');
     searchInput.onkeyup = debounce(() => {
@@ -297,7 +351,7 @@ async function viewResult(id) {
     if (isDemoMode) {
         const company = DEMO_DATA.companies.find(c => c.id === id);
         if (company) {
-            currentResult = { ...company, probabilities: [0.3, 0.3, 0.25, 0.15], shap_values: DEMO_DATA.metrics.feature_importance.slice(0, 8).map(f => ({ ...f, impact: (Math.random() - 0.4) * 0.1 })), recommendations: ['Améliorer les ratios de liquidité.', 'Réduire l\'endettement à court terme.', 'Surveiller la trésorerie opérationnelle.'] };
+            currentResult = { ...company, recommendations: ['Améliorer les ratios de liquidité.', 'Réduire l\'endettement à court terme.', 'Surveiller la trésorerie opérationnelle.'] };
         }
     } else {
         const data = await apiRequest(`/api/history/${id}`);
@@ -313,23 +367,42 @@ async function deleteAnalysis(id) {
     loadHistory();
 }
 
+async function deleteAllHistory() {
+    if (!confirm('Supprimer TOUT l\'historique ? Cette action est irréversible.')) return;
+    await apiRequest('/api/history', { method: 'DELETE' });
+    Toast.show('Historique supprimé.', 'success');
+    loadHistory();
+}
+
 /* === Model Page === */
 async function loadModelPage() {
     const metrics = await API.getMetrics();
     if (!metrics) return;
-    
-    document.getElementById('metricAccuracy').textContent = (metrics.accuracy * 100).toFixed(1) + '%';
-    document.getElementById('metricPrecision').textContent = (metrics.precision * 100).toFixed(1) + '%';
-    document.getElementById('metricRecall').textContent = (metrics.recall * 100).toFixed(1) + '%';
-    document.getElementById('metricF1').textContent = (metrics.f1_score * 100).toFixed(1) + '%';
-    document.getElementById('metricAuc').textContent = (metrics.auc_roc * 100).toFixed(1) + '%';
-    
+
+    document.getElementById('metricRocAuc').textContent = ((metrics.roc_auc || 0) * 100).toFixed(1) + '%';
+    document.getElementById('metricPrAuc').textContent = ((metrics.pr_auc || 0) * 100).toFixed(1) + '%';
+    document.getElementById('metricRecall').textContent = ((metrics.recall_bankrupt || 0) * 100).toFixed(1) + '%';
+    document.getElementById('metricF1').textContent = ((metrics.f1_score || 0) * 100).toFixed(1) + '%';
+    document.getElementById('metricThreshold').textContent = (metrics.threshold || 0).toFixed(2);
+
     document.getElementById('modelDate').textContent = formatDate(metrics.training_date);
     document.getElementById('modelDataset').textContent = metrics.dataset_shape ? `${metrics.dataset_shape[0]} lignes` : '—';
     document.getElementById('modelFeatures').textContent = metrics.n_features || '—';
-    
+
     renderConfusionMatrix(metrics.confusion_matrix);
     renderFeatureImportance(metrics.feature_importance || []);
+}
+
+/* === Helpers === */
+function riskBadge(label, color) {
+    const colorMap = { green: '#10b981', yellow: '#f59e0b', orange: '#f97316', red: '#ef4444' };
+    const c = colorMap[color] || RISK_COLORS_MAP[label] || '#6b7280';
+    return `<span style="background:${c}20;color:${c};padding:0.2rem 0.6rem;border-radius:12px;font-size:0.75rem;font-weight:600">${label}</span>`;
+}
+
+function debounce(fn, ms) {
+    let timer;
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 }
 
 /* === Settings === */
@@ -337,20 +410,11 @@ function initSettings() {
     ['thresh1', 'thresh2', 'thresh3'].forEach(id => {
         const slider = document.getElementById(id);
         const val = document.getElementById(id + 'Val');
-        if (slider && val) {
-            slider.oninput = () => val.textContent = slider.value;
-        }
+        if (slider && val) slider.oninput = () => val.textContent = slider.value;
     });
-    
     document.getElementById('saveSettings')?.addEventListener('click', () => {
         Toast.show('Paramètres sauvegardés avec succès.', 'success');
     });
-}
-
-/* === Helpers === */
-function debounce(fn, ms) {
-    let timer;
-    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 }
 
 /* === Init === */
@@ -358,5 +422,4 @@ document.addEventListener('DOMContentLoaded', () => {
     navigate();
     initSettings();
 });
-
 window.addEventListener('hashchange', navigate);
