@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiskGuard Pro — Détection de Risque Bancaire</title>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+            <span class="brand-text">RiskGuard<span class="brand-pro">Pro</span></span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-item active" data-page="dashboard">
+                <i class="fas fa-chart-pie"></i><span>Tableau de bord</span>
+            </a>
+            <a href="#analyse" class="nav-item" data-page="analyse">
+                <i class="fas fa-magnifying-glass-chart"></i><span>Nouvelle analyse</span>
+            </a>
+            <a href="#resultats" class="nav-item" data-page="resultats">
+                <i class="fas fa-gauge-high"></i><span>Résultats</span>
+            </a>
+            <a href="#historique" class="nav-item" data-page="historique">
+                <i class="fas fa-clock-rotate-left"></i><span>Historique</span>
+            </a>
+            <a href="#modele" class="nav-item" data-page="modele">
+                <i class="fas fa-brain"></i><span>Modèle ML</span>
+            </a>
+            <a href="#parametres" class="nav-item" data-page="parametres">
+                <i class="fas fa-gear"></i><span>Paramètres</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar">A</div>
+            <div class="user-info">
+                <span class="user-name">Analyste</span>
+                <span class="user-role">Risk Manager</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Demo Mode Banner -->
+        <div class="demo-banner" id="demoBanner" style="display:none;">
+            <i class="fas fa-info-circle"></i>
+            <span>Mode démo — Le serveur backend n'est pas connecté</span>
+        </div>
+
+        <!-- Page: Dashboard -->
+        <section class="page" id="page-dashboard">
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Bonjour, Analyste 👋</h1>
+                    <p class="page-subtitle" id="currentDate"></p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button>
+                </div>
+            </header>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpiTotal">0</span>
+                        <span class="kpi-label">Entreprises analysées</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon red"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpiHigh">0</span>
+                        <span class="kpi-label">Risque élevé & critique</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-shield-check"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpiLow">0</span>
+                        <span class="kpi-label">Risque faible & modéré</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon amber"><i class="fas fa-chart-line"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value" id="kpiAvg">—</span>
+                        <span class="kpi-label">Score moyen</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-grid">
+                <div class="card chart-card">
+                    <h3 class="card-title">Distribution des risques</h3>
+                    <canvas id="riskDonut"></canvas>
+                </div>
+                <div class="card chart-card">
+                    <h3 class="card-title">Tendance des scores (6 mois)</h3>
+                    <canvas id="trendLine"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Analyses Table -->
+            <div class="card">
+                <h3 class="card-title">Analyses récentes</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Entreprise</th>
+                                <th>Secteur</th>
+                                <th>Score</th>
+                                <th>Risque</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FAB -->
+            <a href="#analyse" class="fab"><i class="fas fa-plus"></i></a>
+        </section>
+
+        <!-- Page: Analyse -->
+        <section class="page" id="page-analyse" style="display:none;">
+            <header class="page-header">
+                <h1 class="page-title">Nouvelle Analyse de Risque</h1>
+            </header>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="manual">Saisie manuelle</button>
+                <button class="tab" data-tab="upload">Import fichier</button>
+            </div>
+
+            <!-- Manual Form -->
+            <div class="tab-content active" id="tab-manual">
+                <form id="analyzeForm" class="analyze-form">
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-building"></i> Identité de l'entreprise</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nom de l'entreprise</label>
+                                <input type="text" id="companyName" required placeholder="Ex: Atlas Distribution SARL">
+                            </div>
+                            <div class="form-group">
+                                <label>Secteur d'activité</label>
+                                <select id="companySector">
+                                    <option value="BTP">BTP</option>
+                                    <option value="Commerce">Commerce</option>
+                                    <option value="Industrie">Industrie</option>
+                                    <option value="Services" selected>Services</option>
+                                    <option value="Agriculture">Agriculture</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="Immobilier">Immobilier</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Taille</label>
+                                <select id="companySize">
+                                    <option value="TPE">TPE</option>
+                                    <option value="PME" selected>PME</option>
+                                    <option value="ETI">ETI</option>
+                                    <option value="GE">GE</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-calculator"></i> Ratios financiers</h3>
+                        <p class="card-subtitle">Renseignez les indicateurs financiers de l'entreprise (valeurs entre 0 et 1 pour les ratios).</p>
+                        <div class="form-grid" id="featuresGrid">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-rocket"></i> Lancer l'analyse XGBoost
+                    </button>
+                </form>
+            </div>
+
+            <!-- Upload Tab -->
+            <div class="tab-content" id="tab-upload" style="display:none;">
+                <div class="card">
+                    <div class="dropzone" id="dropzone">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                        <p>Glissez votre fichier ici ou <span class="link">parcourir</span></p>
+                        <small>CSV, XLSX — Maximum 10 Mo</small>
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
+                    </div>
+                    <div id="filePreview" style="display:none;" class="file-preview">
+                        <i class="fas fa-file-spreadsheet"></i>
+                        <div class="file-info">
+                            <span id="fileName"></span>
+                            <small id="fileDetails"></small>
+                        </div>
+                        <button class="btn btn-primary" id="batchAnalyzeBtn">Analyser</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Résultats -->
+        <section class="page" id="page-resultats" style="display:none;">
+            <header class="page-header">
+                <h1 class="page-title" id="resultCompanyName">Résultat de l'analyse</h1>
+                <p class="page-subtitle" id="resultDate"></p>
+            </header>
+
+            <!-- Risk Gauge -->
+            <div class="card result-hero">
+                <div class="gauge-container">
+                    <svg class="gauge" viewBox="0 0 200 120" id="riskGauge">
+                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGradient)" stroke-width="12" stroke-linecap="round" id="gaugeArc" stroke-dasharray="0 251"/>
+                        <defs>
+                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#10b981"/>
+                                <stop offset="33%" stop-color="#f59e0b"/>
+                                <stop offset="66%" stop-color="#f97316"/>
+                                <stop offset="100%" stop-color="#ef4444"/>
+                            </linearGradient>
+                        </defs>
+                        <text x="100" y="85" text-anchor="middle" class="gauge-score" id="gaugeScore">—</text>
+                        <text x="100" y="110" text-anchor="middle" class="gauge-label" id="gaugeLabel">—</text>
+                    </svg>
+                </div>
+
+                <!-- Probability Bars -->
+                <div class="prob-bars" id="probBars"></div>
+            </div>
+
+            <!-- SHAP & Recommendations -->
+            <div class="results-grid">
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Impact des facteurs (SHAP)</h3>
+                    <canvas id="shapChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-lightbulb"></i> Recommandations</h3>
+                    <div id="recommendations" class="recs-list"></div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="result-actions">
+                <button class="btn btn-outline" id="exportPdfBtn"><i class="fas fa-file-pdf"></i> Exporter PDF</button>
+                <a href="#analyse" class="btn btn-primary"><i class="fas fa-plus"></i> Nouvelle analyse</a>
+                <a href="#historique" class="btn btn-outline"><i class="fas fa-clock-rotate-left"></i> Historique</a>
+            </div>
+        </section>
+
+        <!-- Page: Historique -->
+        <section class="page" id="page-historique" style="display:none;">
+            <header class="page-header">
+                <h1 class="page-title">Historique des analyses</h1>
+            </header>
+
+            <div class="card">
+                <div class="filters-row">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="historySearch" placeholder="Rechercher une entreprise...">
+                    </div>
+                    <div class="filter-chips" id="riskFilters">
+                        <button class="chip active" data-risk="">Tous</button>
+                        <button class="chip" data-risk="0">Faible</button>
+                        <button class="chip" data-risk="1">Modéré</button>
+                        <button class="chip" data-risk="2">Élevé</button>
+                        <button class="chip" data-risk="3">Critique</button>
+                    </div>
+                </div>
+
+                <p class="results-count" id="historyCount">— analyses trouvées</p>
+
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Entreprise</th>
+                                <th>Secteur</th>
+                                <th>Score</th>
+                                <th>Risque</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </section>
+
+        <!-- Page: Modèle -->
+        <section class="page" id="page-modele" style="display:none;">
+            <header class="page-header">
+                <h1 class="page-title">Performances du Modèle XGBoost</h1>
+            </header>
+
+            <div class="model-info-bar" id="modelInfoBar">
+                <span><i class="fas fa-calendar"></i> <span id="modelDate">—</span></span>
+                <span><i class="fas fa-database"></i> <span id="modelDataset">—</span></span>
+                <span><i class="fas fa-layer-group"></i> <span id="modelFeatures">—</span> features</span>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card"><div class="kpi-icon blue"><i class="fas fa-bullseye"></i></div><div class="kpi-content"><span class="kpi-value" id="metricAccuracy">—</span><span class="kpi-label">Accuracy</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon green"><i class="fas fa-crosshairs"></i></div><div class="kpi-content"><span class="kpi-value" id="metricPrecision">—</span><span class="kpi-label">Precision</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon amber"><i class="fas fa-arrows-to-dot"></i></div><div class="kpi-content"><span class="kpi-value" id="metricRecall">—</span><span class="kpi-label">Recall</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon purple"><i class="fas fa-scale-balanced"></i></div><div class="kpi-content"><span class="kpi-value" id="metricF1">—</span><span class="kpi-label">F1-Score</span></div></div>
+                <div class="kpi-card"><div class="kpi-icon red"><i class="fas fa-chart-area"></i></div><div class="kpi-content"><span class="kpi-value" id="metricAuc">—</span><span class="kpi-label">AUC-ROC</span></div></div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="card chart-card">
+                    <h3 class="card-title">Matrice de confusion</h3>
+                    <div class="confusion-matrix" id="confusionMatrix"></div>
+                </div>
+                <div class="card chart-card">
+                    <h3 class="card-title">Importance des features (Top 20)</h3>
+                    <canvas id="featureImportanceChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Paramètres -->
+        <section class="page" id="page-parametres" style="display:none;">
+            <header class="page-header">
+                <h1 class="page-title">Paramètres</h1>
+            </header>
+
+            <div class="settings-grid">
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-user"></i> Profil analyste</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nom complet</label>
+                            <input type="text" value="Analyste Principal" id="settingsName">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" value="analyste@riskguard.ma" id="settingsEmail">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-sliders"></i> Seuils de risque</h3>
+                    <div class="thresholds">
+                        <div class="threshold-item">
+                            <label>Faible → Modéré</label>
+                            <input type="range" min="10" max="40" value="25" id="thresh1">
+                            <span id="thresh1Val">25</span>
+                        </div>
+                        <div class="threshold-item">
+                            <label>Modéré → Élevé</label>
+                            <input type="range" min="35" max="70" value="50" id="thresh2">
+                            <span id="thresh2Val">50</span>
+                        </div>
+                        <div class="threshold-item">
+                            <label>Élevé → Critique</label>
+                            <input type="range" min="60" max="90" value="75" id="thresh3">
+                            <span id="thresh3Val">75</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-bell"></i> Notifications</h3>
+                    <div class="toggle-list">
+                        <label class="toggle-item"><span>Alerte risque critique</span><input type="checkbox" checked><span class="toggle"></span></label>
+                        <label class="toggle-item"><span>Rapport hebdomadaire</span><input type="checkbox"><span class="toggle"></span></label>
+                        <label class="toggle-item"><span>Alerte ré-entraînement</span><input type="checkbox" checked><span class="toggle"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="saveSettings"><i class="fas fa-check"></i> Sauvegarder</button>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toasts" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="spinner"></div>
+        <p>Analyse en cours...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/charts.js"></script>
+    <script src="scripts/upload.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>

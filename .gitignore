@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+
+# Data & model artifacts
+backend/data/analyses.db
+backend/data/reports/
+backend/data/raw/
+backend/model/xgboost_pipeline.pkl
+
+# IDE
+.vscode/
+.idea/
