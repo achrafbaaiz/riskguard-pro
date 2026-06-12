@@ -268,6 +268,7 @@
                                     <th>Entreprise</th>
                                     <th>Probabilité</th>
                                     <th>Risque</th>
+                                    <th>PDF</th>
                                 </tr>
                             </thead>
                             <tbody id="batchTable"></tbody>
@@ -309,7 +310,8 @@
 
             <!-- Actions -->
             <div class="result-actions">
-                <a href="#analyse" class="btn btn-primary"><i class="fas fa-plus"></i> Nouvelle analyse</a>
+                <button class="btn btn-primary" onclick="exportResultPDF()"><i class="fas fa-file-pdf"></i> Exporter PDF</button>
+                <a href="#analyse" class="btn btn-outline"><i class="fas fa-plus"></i> Nouvelle analyse</a>
                 <a href="#historique" class="btn btn-outline"><i class="fas fa-clock-rotate-left"></i> Historique</a>
             </div>
         </section>

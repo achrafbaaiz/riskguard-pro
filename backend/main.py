@@ -35,6 +35,7 @@ DB_PATH = os.path.join(os.path.dirname(__file__), "data", "analyses.db")
 
 model = None
 config = None
+scaler = None
 
 
 # ─── Models ──────────────────────────────────────────────────────
@@ -71,20 +72,26 @@ def get_db():
 # ─── Startup ─────────────────────────────────────────────────────
 @app.on_event("startup")
 def load_model():
-    global model, config
+    global model, config, scaler
 
     model_path = os.path.join(MODEL_DIR, "xgboost_model.pkl")
     config_path = os.path.join(MODEL_DIR, "model_config.json")
+    scaler_path = os.path.join(MODEL_DIR, "scaler.pkl")
 
     if os.path.exists(model_path):
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
         print("✅ Model loaded")
 
+    if os.path.exists(scaler_path):
+        with open(scaler_path, 'rb') as f:
+            scaler = pickle.load(f)
+        print("✅ Scaler loaded")
+
     if os.path.exists(config_path):
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
-        print(f"✅ Config loaded (threshold={config['threshold']}, {len(config['top_features'])} features)")
+        print(f"✅ Config loaded (threshold={config['threshold']}, {len(config['all_feature_names'])} features)")
 
     get_db()
 
@@ -92,11 +99,11 @@ def load_model():
 # ─── Helpers ─────────────────────────────────────────────────────
 def get_risk_label(proba, threshold):
     """4-level risk from probability."""
-    if proba >= 0.70:
+    if proba >= 0.80:
         return "Très élevé", "red"
-    elif proba >= 0.40:
+    elif proba >= 0.50:
         return "Élevé", "orange"
-    elif proba >= 0.15:
+    elif proba >= 0.10:
         return "Modéré", "yellow"
     else:
         return "Faible", "green"
@@ -116,7 +123,7 @@ def generate_recommendations(label, features_dict):
 
 
 def predict_single(features_dict):
-    """Run prediction - pass all features to model in correct order."""
+    """Run prediction - normalize keys, apply scaler, predict."""
     threshold = config['threshold']
     all_features = config['all_feature_names']
     medians = config['feature_medians']
@@ -128,12 +135,19 @@ def predict_single(features_dict):
         norm_input[norm_key] = v
 
     # Build input vector matching model's expected feature order
-    X_input = np.array([[
+    values = [
         float(norm_input.get(f.strip().lower().replace('_', ' '), medians.get(f, 0)))
         for f in all_features
-    ]])
+    ]
+    X = pd.DataFrame([values], columns=all_features)
 
-    proba = float(model.predict_proba(X_input)[0][1])
+    # Apply saved scaler only if model was trained with scaling
+    if scaler is not None and config.get('uses_scaler', True):
+        X_scaled = scaler.transform(X)
+    else:
+        X_scaled = X.values
+
+    proba = float(model.predict_proba(X_scaled)[0][1])
     label, color = get_risk_label(proba, threshold)
     recommendations = generate_recommendations(label, features_dict)
 

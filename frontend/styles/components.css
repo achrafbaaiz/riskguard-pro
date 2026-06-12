@@ -409,3 +409,11 @@
     text-align: right;
     transition: color 0.4s ease;
 }
+
+
+/* === Batch Actions === */
+.batch-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}

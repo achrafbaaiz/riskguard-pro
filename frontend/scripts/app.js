@@ -13,37 +13,37 @@ const PRESETS = {
         "Net Income to Total Assets": 0.85,
         "Retained Earnings to Total Assets": 0.95,
         "Persistent EPS in the Last Four Seasons": 0.28,
-        "Net worth/Assets": 0.90,
-        "Debt ratio %": 0.10,
-        "Total debt/Total net worth": 0.01,
-        "Borrowing dependency": 0.30,
+        "Net worth/Assets": 0.92,
+        "Debt ratio %": 0.08,
+        "Total debt/Total net worth": 0.005,
+        "Borrowing dependency": 0.28,
         "Liability to Equity": 0.15,
         "Current Ratio": 0.80,
-        "Continuous interest rate (after tax)": 0.80
+        "Continuous interest rate (after tax)": 0.82
     },
     medium: {
-        "Net Income to Total Assets": 0.55,
-        "Retained Earnings to Total Assets": 0.62,
-        "Persistent EPS in the Last Four Seasons": 0.12,
-        "Net worth/Assets": 0.52,
-        "Debt ratio %": 0.43,
-        "Total debt/Total net worth": 0.15,
-        "Borrowing dependency": 0.45,
-        "Liability to Equity": 0.38,
-        "Current Ratio": 0.50,
-        "Continuous interest rate (after tax)": 0.63
+        "Net Income to Total Assets": 0.74,
+        "Retained Earnings to Total Assets": 0.88,
+        "Persistent EPS in the Last Four Seasons": 0.17,
+        "Net worth/Assets": 0.87,
+        "Debt ratio %": 0.12,
+        "Total debt/Total net worth": 0.03,
+        "Borrowing dependency": 0.38,
+        "Liability to Equity": 0.28,
+        "Current Ratio": 0.55,
+        "Continuous interest rate (after tax)": 0.75
     },
     high: {
-        "Net Income to Total Assets": 0.25,
-        "Retained Earnings to Total Assets": 0.35,
-        "Persistent EPS in the Last Four Seasons": 0.04,
-        "Net worth/Assets": 0.22,
-        "Debt ratio %": 0.75,
-        "Total debt/Total net worth": 0.55,
-        "Borrowing dependency": 0.72,
-        "Liability to Equity": 0.75,
-        "Current Ratio": 0.28,
-        "Continuous interest rate (after tax)": 0.42
+        "Net Income to Total Assets": 0.55,
+        "Retained Earnings to Total Assets": 0.70,
+        "Persistent EPS in the Last Four Seasons": 0.09,
+        "Net worth/Assets": 0.55,
+        "Debt ratio %": 0.35,
+        "Total debt/Total net worth": 0.30,
+        "Borrowing dependency": 0.65,
+        "Liability to Equity": 0.60,
+        "Current Ratio": 0.15,
+        "Continuous interest rate (after tax)": 0.55
     }
 };
 
@@ -403,6 +403,54 @@ function riskBadge(label, color) {
 function debounce(fn, ms) {
     let timer;
     return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+/* === PDF Export === */
+function exportResultPDF() {
+    const result = currentResult || Storage.get('lastResult');
+    if (!result) return;
+
+    const colorMap = { green: '#10b981', yellow: '#f59e0b', orange: '#f97316', red: '#ef4444' };
+    const c = colorMap[result.color] || '#6b7280';
+    const date = new Date(result.created_at || Date.now()).toLocaleString('fr-FR');
+    const recs = (result.recommendations || []).map((r, i) => `<li>${r}</li>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>RiskGuard Pro - ${result.company_name}</title>
+    <style>
+        body{font-family:Arial,sans-serif;padding:40px;color:#1a1a1a}
+        h1{color:#1e40af;margin-bottom:5px}
+        .subtitle{color:#666;margin-bottom:30px}
+        .risk-box{padding:20px;border-radius:10px;text-align:center;margin:20px 0;background:#f8f9fa;border:2px solid ${c}}
+        .risk-prob{font-size:2.5rem;font-weight:700;color:${c}}
+        .risk-label{font-size:1.2rem;font-weight:600;color:${c};margin-top:5px}
+        .section{margin-top:25px}
+        .section h3{color:#374151;border-bottom:1px solid #e5e7eb;padding-bottom:8px}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        td{padding:8px 12px;border:1px solid #e5e7eb}
+        td:first-child{font-weight:600;background:#f9fafb;width:40%}
+        .footer{margin-top:40px;text-align:center;color:#9ca3af;font-size:0.8rem}
+        ul{padding-left:20px}li{margin-bottom:8px}
+    </style></head><body>
+    <h1>RiskGuard Pro</h1>
+    <p class="subtitle">Rapport d'analyse de risque</p>
+    <div class="section"><h3>Entreprise</h3>
+        <table><tr><td>Nom</td><td>${result.company_name}</td></tr>
+        <tr><td>Date d'analyse</td><td>${date}</td></tr>
+        <tr><td>ID</td><td>${result.analysis_id || '—'}</td></tr></table>
+    </div>
+    <div class="risk-box">
+        <div class="risk-prob">${result.probability}%</div>
+        <div class="risk-label">${result.risk_label}</div>
+        <p style="margin-top:10px;color:#666">Probabilité de défaillance financière</p>
+    </div>
+    <div class="section"><h3>Recommandations</h3><ul>${recs}</ul></div>
+    <div class="footer">Généré par RiskGuard Pro — ${date}</div>
+    </body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    setTimeout(() => { win.print(); }, 500);
 }
 
 /* === Settings === */
