@@ -121,10 +121,16 @@ def predict_single(features_dict):
     all_features = config['all_feature_names']
     medians = config['feature_medians']
 
-    # Build input with ALL features in training order
-    # User-provided values take priority, medians fill the rest
+    # Normalize incoming keys: strip, lowercase, underscores to spaces
+    norm_input = {}
+    for k, v in features_dict.items():
+        norm_key = str(k).strip().lower().replace('_', ' ')
+        norm_input[norm_key] = v
+
+    # Build input vector matching model's expected feature order
     X_input = np.array([[
-        float(features_dict.get(f, medians.get(f, 0))) for f in all_features
+        float(norm_input.get(f.strip().lower().replace('_', ' '), medians.get(f, 0)))
+        for f in all_features
     ]])
 
     proba = float(model.predict_proba(X_input)[0][1])
