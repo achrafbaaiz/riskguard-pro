@@ -462,31 +462,23 @@
 % SLIDE 14 - Demonstration (captures d'ecran)
 %=======================================================================
 \begin{frame}{Aperçu de la plateforme}
-  \begin{block}{Captures d'écran à insérer}
-    \begin{itemize}
-      \item Formulaire d'analyse
-      \item Résultat avec le niveau de risque affiché
-      \item Page d'historique
-    \end{itemize}
-  \end{block}
-  \vfill
-  \centering
-  % --- Placeholders pour les captures d'ecran ---
-  % Decommentez et ajustez les chemins une fois les images disponibles :
-  %
-  % \includegraphics[width=0.30\textwidth]{capture1.png}\hfill
-  % \includegraphics[width=0.30\textwidth]{capture2.png}\hfill
-  % \includegraphics[width=0.30\textwidth]{capture3.png}
-  %
-  \begin{tikzpicture}
-    \foreach \i/\lab in {0/Formulaire, 1/Résultat, 2/Historique} {
-      \begin{scope}[xshift=\i*4cm]
-        \draw[draw=rggray,fill=rggray!8] (0,0) rectangle (3.5,2.4);
-        \node[rggray] at (1.75,1.5) {\scriptsize \texttt{capture\the\numexpr\i+1\relax.png}};
-        \node[rggray] at (1.75,0.8) {\scriptsize [\lab]};
-      \end{scope}
-    }
-  \end{tikzpicture}
+  \begin{columns}[T]
+    \begin{column}{0.33\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=4.6cm,keepaspectratio]{capture1.png}\\[4pt]
+      {\scriptsize Formulaire d'analyse}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=4.6cm,keepaspectratio]{capture2.png}\\[4pt]
+      {\scriptsize Résultat \& niveau de risque}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=4.6cm,keepaspectratio]{capture3.png}\\[4pt]
+      {\scriptsize Page d'historique}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 %=======================================================================
