@@ -1,695 +1,483 @@
 %==============================================================================
-%  RiskGuard Pro - Presentation de fin d'annee (Beamer)
-%  Theme: bleu marine / blanc / accents dores
-%  Compilation : pdflatex riskguard_pro.tex  (x2 pour les references)
-%  Paquets requis (tous dans TeX Live): beamer, tikz, pgfplots, xcolor,
-%                                        booktabs, fontawesome5, qrcode
-%
-%  Police "moderne" (Poppins/Montserrat) : decommenter le bloc fontspec
-%  et compiler avec lualatex ou xelatex au lieu de pdflatex.
+%  RiskGuard Pro - Presentation de fin d'annee
+%  Style : Beamer classique/academique (theme Madrid, couleurs par defaut)
+%  Compilation : pdflatex riskguard_pro.tex  (x2 pour le sommaire/numeros)
+%  Paquets requis (tous dans TeX Live): beamer, tikz, pgfplots, booktabs,
+%                                        colortbl
 %==============================================================================
-\documentclass[aspectratio=169,10pt]{beamer}
+\documentclass[aspectratio=169,11pt]{beamer}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
-\usepackage{helvet}
-\renewcommand{\familydefault}{\sfdefault}
-
-% --- Pour une vraie police Poppins/Montserrat (XeLaTeX/LuaLaTeX) ---
-% \usepackage{fontspec}
-% \setsansfont{Montserrat}
-% \renewcommand{\familydefault}{\sfdefault}
-
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb}
 \usepackage{tikz}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
-\usetikzlibrary{positioning,shapes.geometric,arrows.meta,calc,matrix,shadings,backgrounds,fit}
-\usepackage{booktabs}
-\usepackage{fontawesome5}
-\usepackage{qrcode}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric}
 
 %------------------------------------------------------------------------------
-% PALETTE
+% Theme classique
 %------------------------------------------------------------------------------
-\definecolor{navy}{HTML}{1A237E}
-\definecolor{navydark}{HTML}{0A1238}
-\definecolor{navymid}{HTML}{0F1A4A}
-\definecolor{card}{HTML}{18224F}
-\definecolor{gold}{HTML}{FFD700}
-\definecolor{goldsoft}{HTML}{FFE566}
-\definecolor{golddeep}{HTML}{E6B800}
-\definecolor{ink}{HTML}{EAF0FF}
-\definecolor{muted}{HTML}{AAB4E0}
-\definecolor{rgreen}{HTML}{2ECC71}
-\definecolor{ryellow}{HTML}{F1C40F}
-\definecolor{rorange}{HTML}{E67E22}
-\definecolor{rred}{HTML}{E74C3C}
-\definecolor{rblue}{HTML}{3949AB}
-\definecolor{rbluel}{HTML}{5C6BC0}
-
-%------------------------------------------------------------------------------
-% THEME
-%------------------------------------------------------------------------------
-\usetheme{default}
-\usefonttheme{professionalfonts}
+\usetheme{Madrid}
+\usecolortheme{default}      % bleu Beamer classique
+\useinnertheme{rounded}
+\useoutertheme{infolines}
 \setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamertemplate{itemize items}[triangle]
 
-\setbeamercolor{background canvas}{bg=navydark}
-\setbeamercolor{normal text}{fg=ink}
-\setbeamercolor{frametitle}{fg=white}
-\setbeamercolor{itemize item}{fg=gold}
-\setbeamercolor{itemize subitem}{fg=goldsoft}
-\setbeamercolor{enumerate item}{fg=gold}
-\setbeamercolor{block title}{fg=navydark,bg=gold}
-\setbeamercolor{block body}{fg=ink,bg=card}
-
-\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
-\setbeamerfont{title}{size=\Huge,series=\bfseries}
-\setbeamertemplate{itemize item}{\small\faCircle}
-\setbeamertemplate{itemize subitem}{\scriptsize\faAngleRight}
-
-% --- Titre de frame avec liseré doré ---
-\setbeamertemplate{frametitle}{%
-  \vspace{0.6em}%
-  {\color{goldsoft}\scriptsize\bfseries\MakeUppercase{\insertshortauthor}}\par
-  \vspace{0.15em}%
-  {\color{white}\Large\bfseries\insertframetitle}\par
-  \vspace{0.25em}%
-  {\color{gold}\rule{2.2em}{2.4pt}}\par
-  \vspace{0.4em}%
-}
-
-% --- Bas de page ---
-\setbeamertemplate{footline}{%
-  \hbox{%
-    \begin{beamercolorbox}[wd=\paperwidth,ht=2.4ex,dp=1.2ex,leftskip=1.2em,rightskip=1.2em]{}%
-      {\color{gold}\faShieldAlt}\ {\color{ink}\footnotesize\bfseries RiskGuard Pro}%
-      \hfill
-      {\color{muted}\footnotesize\insertframenumber\,/\,\inserttotalframenumber}%
-    \end{beamercolorbox}%
-  }%
-  \vspace{1pt}\hbox{\color{gold}\rule{\paperwidth}{1.5pt}}%
-}
-
-% Pas de "short author" affiche en haut sauf via kicker
-\renewcommand{\insertshortauthor}{}
+% Sommaire automatique au debut de chaque section
+\AtBeginSection[]{%
+  \begin{frame}{Sommaire}
+    \tableofcontents[currentsection]
+  \end{frame}}
 
 %------------------------------------------------------------------------------
-% COMMANDES UTILITAIRES
+% Informations du document
 %------------------------------------------------------------------------------
-% kicker = sur-titre dore (passe via \shortauthor du frametitle)
-\newcommand{\kick}[1]{\renewcommand{\insertshortauthor}{#1}}
+\title[RiskGuard Pro]{RiskGuard Pro}
+\subtitle{Plateforme Intelligente de Détection de Risque Bancaire pour Entreprises}
+\author[Étudiant(s)]{Étudiant(s)~: [\,à compléter\,]}
+\institute[]{Encadrant~: [\,à compléter\,] \\ [\,Université\,]}
+\date{Projet de fin d'année --- Année universitaire 2025--2026}
 
-% Badge de timing en haut a droite
-\newcommand{\timing}[1]{%
-  \begin{tikzpicture}[remember picture,overlay]
-    \node[anchor=north east,xshift=-1.1em,yshift=-1.0em,
-          draw=golddeep,rounded corners=8pt,inner sep=4pt,
-          text=gold,font=\scriptsize] at (current page.north east) {#1};
-  \end{tikzpicture}}
-
-% Carte (boite arrondie)
-\newcommand{\rgcard}[2]{%
-  \begin{tikzpicture}
-    \node[fill=card,rounded corners=8pt,draw=navy,line width=0.6pt,
-          inner sep=10pt,text=ink,text width=#1] {#2};
-  \end{tikzpicture}}
-
-% Tuile "feature"
-\newcommand{\feat}[3]{%
-  \begin{tikzpicture}
-    \node[fill=card,rounded corners=8pt,inner sep=8pt,text width=0.93\linewidth] {%
-      {\color{gold}#1}\quad{\color{white}\bfseries #2}\\[2pt]
-      {\color{muted}\small #3}};
-  \end{tikzpicture}}
-
-% Style global des graphiques pgfplots (fond sombre)
-\pgfplotsset{
-  rgaxis/.style={
-    width=\linewidth,
-    axis line style={muted},
-    tick label style={muted,font=\scriptsize},
-    label style={muted,font=\scriptsize},
-    every axis title/.style={muted,font=\small},
-    grid style={navy!60},
-    tick style={muted},
-  }
-}
-
-%------------------------------------------------------------------------------
-\title{RiskGuard Pro}
-\author{}
-\date{2025--2026}
-%------------------------------------------------------------------------------
 \begin{document}
 
-%=========================== SLIDE 1 - GARDE ==================================
-{
-\setbeamertemplate{footline}{}
+%=========================== PAGE DE GARDE ====================================
 \begin{frame}[plain]
-\begin{tikzpicture}[remember picture,overlay]
-  \fill[navydark] (current page.south west) rectangle (current page.north east);
-  % bouclier
-  \begin{scope}[shift={($(current page.center)+(0,2.0)$)}]
-    \fill[gold] (0,1.1) -- (1.0,0.75) -- (1.0,-0.1) -- (0,-1.05) -- (-1.0,-0.1) -- (-1.0,0.75) -- cycle;
-    \draw[navydark,line width=3pt,line cap=round,line join=round] (-0.45,0.0) -- (-0.1,-0.35) -- (0.55,0.45);
-  \end{scope}
-\end{tikzpicture}
-
-\centering
-\vspace{3.6cm}
-{\color{gold}\scriptsize\bfseries PROJET DE FIN D'ANNÉE\quad\textbullet\quad 2025--2026}\\[0.9em]
-{\color{white}\fontsize{42}{46}\selectfont\bfseries Risk\textcolor{gold}{Guard} Pro}\\[0.3em]
-{\color{gold}\rule{4cm}{2.5pt}}\\[0.8em]
-{\color{muted}\large Plateforme Intelligente de Détection de Risque Bancaire pour Entreprises}\\[1.6em]
-
-\begin{tabular}{ccc}
-  {\color{white}\bfseries Étudiant(s)} & {\color{white}\bfseries Encadrant} & {\color{white}\bfseries Université}\\[2pt]
-  {\color{goldsoft}\itshape [ à compléter ]} & {\color{goldsoft}\itshape [ à compléter ]} & {\color{goldsoft}\itshape [ logo / nom ]}\\
-\end{tabular}\\[1.4em]
-
-\tikz\node[draw=gold,rounded corners=14pt,inner sep=6pt,text=gold,font=\small\bfseries]
-  {Année universitaire 2025 -- 2026};
+  \titlepage
 \end{frame}
-}
 
-%=========================== SLIDE 2 - SOMMAIRE ===============================
-\kick{Plan de la présentation}
+%=========================== SOMMAIRE =========================================
 \begin{frame}{Sommaire}
-\timing{30 s}
-\vspace{0.3em}
-\begin{columns}[T]
-\column{0.5\textwidth}
-  \begin{enumerate}
-    \item Contexte \& Problématique
-    \item Objectifs du projet
-    \item Données \& Prétraitement
-    \item Données synthétiques (SMOTE + Bruit Gaussien)
-    \item Comparaison des modèles ML
-  \end{enumerate}
-\column{0.5\textwidth}
-  \begin{enumerate}
-    \setcounter{enumi}{5}
-    \item Pourquoi XGBoost ?
-    \item Architecture technique
-    \item Démonstration
-    \item Résultats \& Métriques
-    \item Conclusion \& Perspectives
-  \end{enumerate}
-\end{columns}
+  \tableofcontents
 \end{frame}
 
-%=========================== SLIDE 3 - CONTEXTE ===============================
-\kick{Pourquoi ce projet ?}
+%==============================================================================
+\section{Contexte \& Problématique}
+%==============================================================================
 \begin{frame}{Contexte \& Problématique}
-\timing{1 min}
-\begin{columns}[T]
-\column{0.56\textwidth}
-  \begin{itemize}
-    \item Le secteur bancaire marocain fait face à un \textbf{risque croissant de défaillance} d'entreprises.
-    \item Les méthodes traditionnelles (scoring manuel, ratios simples) sont \textbf{limitées et subjectives}.
-    \item Besoin d'un outil \textbf{automatisé, fiable et rapide} pour classifier le niveau de risque.
-  \end{itemize}
-  \vspace{0.5em}
-  \begin{block}{\faQuestionCircle\ Question centrale}
-    Comment prédire la \textbf{probabilité de faillite} d'une entreprise à partir de ses \textbf{ratios financiers} ?
-  \end{block}
-\column{0.44\textwidth}
-  \centering
-  {\color{gold}\small Hausse des défaillances (indice)}\\[2pt]
-  \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=4.4cm,ymin=0,ymax=90,
-      symbolic x coords={2018,2019,2020,2021,2022,2023,2024,2025},
-      xtick={2018,2021,2024}, ytick=\empty,ymajorgrids]
-      \addplot[gold!50,fill=gold!12,draw=none] coordinates
-        {(2018,22)(2019,28)(2020,26)(2021,35)(2022,41)(2023,52)(2024,63)(2025,78)}
-        \closedcycle;
-      \addplot[gold,line width=1.5pt,mark=*,mark options={fill=navydark}]
-        coordinates {(2018,22)(2019,28)(2020,26)(2021,35)(2022,41)(2023,52)(2024,63)(2025,78)};
-    \end{axis}
-  \end{tikzpicture}
-\end{columns}
-\end{frame}
-
-%=========================== SLIDE 4 - OBJECTIFS ==============================
-\kick{Ce que nous voulons livrer}
-\begin{frame}{Objectifs du projet}
-\timing{1 min}
-\vspace{0.4em}
-\begin{columns}[T]
-\column{0.5\textwidth}
-  \feat{\faProjectDiagram}{Pipeline ML complet}{De la donnée brute à la prédiction temps réel.}\\[6pt]
-  \feat{\faLayerGroup}{4 niveaux de risque}{Faible -- Modéré -- Élevé -- Critique.}\\[6pt]
-  \feat{\faDesktop}{Interface web intuitive}{Pensée pour les analystes bancaires.}
-\column{0.5\textwidth}
-  \feat{\faSearch}{Interprétabilité (SHAP)}{Expliquer chaque décision du modèle.}\\[6pt]
-  \feat{\faFileCsv}{Analyse unitaire \& batch}{Saisie manuelle ou import CSV/Excel.}\\[6pt]
-  \feat{\faBolt}{Réponse temps réel}{Prédiction en moins de 100 ms.}
-\end{columns}
-\end{frame}
-
-%=========================== SLIDE 5 - DATASET ================================
-\kick{Le jeu de données}
-\begin{frame}{Données utilisées}
-\timing{1 min}
-\begin{columns}[T]
-\column{0.56\textwidth}
-  \begin{itemize}
-    \item \textbf{Source :} « Company Bankruptcy Prediction » (Taiwan Economic Journal).
-    \item \textbf{96 colonnes} de ratios financiers : ROA, ROE, liquidité, endettement, trésorerie\dots
-    \item \textbf{Cible :} \texttt{Bankrupt?} -- 0 = sain, 1 = défaillant.
-    \item Environ \textbf{6 800 observations} initiales.
-  \end{itemize}
-  \vspace{0.3em}
-  \begin{tikzpicture}
-    \node[fill=rred!18,draw=rred!70,rounded corners=8pt,inner sep=9pt,
-          text width=0.93\linewidth,text=ink]{%
-      {\color{rred}\faExclamationTriangle\ \bfseries Problème majeur}\\[3pt]
-      \textbf{Déséquilibre extrême} : \textasciitilde3\% de faillites contre 97\% d'entreprises saines.};
-  \end{tikzpicture}
-\column{0.44\textwidth}
-  \centering
-  {\color{gold}\small Déséquilibre des classes}\\[2pt]
-  \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=4.6cm,ybar,ymin=0,ymax=100,bar width=34pt,
-      symbolic x coords={Sains,Faillite},xtick=data,
-      nodes near coords,nodes near coords style={text=white,font=\small\bfseries},
-      ytick=\empty]
-      \addplot[fill=rblue,draw=none] coordinates {(Sains,97)};
-      \addplot[fill=rred,draw=none] coordinates {(Faillite,3)};
-    \end{axis}
-  \end{tikzpicture}
-\end{columns}
-\end{frame}
-
-%=========================== SLIDE 6 - DATA CLEANING ==========================
-\kick{Prétraitement}
-\begin{frame}{Data Cleaning}
-\timing{1 min 30}
-\begin{columns}[T]
-\column{0.58\textwidth}
-  \small
-  \begin{enumerate}
-    \item Détection \& suppression des \textbf{doublons}.
-    \item Valeurs manquantes : \textbf{imputation par la médiane}.
-    \item Outliers via \textbf{IQR} -- capping percentiles 1\% / 99\%.
-    \item Suppression des features à \textbf{variance quasi-nulle}.
-    \item Corrélation : suppression si \textbf{corr. $>$ 0.95}.
-    \item \textbf{Normalisation} des noms de colonnes.
-  \end{enumerate}
-\column{0.42\textwidth}
-  \centering
-  {\color{gold}\small Réduction des features}\\[2pt]
-  \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=3.6cm,ybar,ymin=0,ymax=110,bar width=30pt,
-      symbolic x coords={Avant,Après},xtick=data,
-      nodes near coords,nodes near coords style={text=white,font=\small\bfseries},
-      ytick=\empty]
-      \addplot[fill=rbluel,draw=none] coordinates {(Avant,96)};
-      \addplot[fill=gold,draw=none] coordinates {(Après,65)};
-    \end{axis}
-  \end{tikzpicture}
-  {\color{goldsoft}\footnotesize 96 features $\rightarrow$ \textbf{\textasciitilde65} pertinentes}
-\end{columns}
-\end{frame}
-
-%=========================== SLIDE 7 - POURQUOI SYNTH =========================
-\kick{Le piège du déséquilibre}
-\begin{frame}{Pourquoi générer des données synthétiques ?}
-\timing{1 min}
-\begin{columns}[T]
-\column{0.52\textwidth}
-  \begin{itemize}
-    \item Avec \textasciitilde3\% de positifs, le modèle apprend à \textbf{toujours prédire « sain »}.
-    \item \textbf{Accuracy trompeuse} : 97\% en prédisant toujours 0 $\rightarrow$ inutile !
-    \item Le \textbf{recall} sur la classe « faillite » est quasi nul.
-    \item \textbf{Solution :} augmenter la classe minoritaire avec des données synthétiques réalistes.
-  \end{itemize}
-\column{0.48\textwidth}
-  \centering {\color{gold}\small Matrice de confusion}\\[4pt]
   \begin{columns}[T]
-  \column{0.5\textwidth}\centering
-    {\color{muted}\scriptsize Sans rééquilibrage}\\[2pt]
-    \begin{tikzpicture}[scale=0.62,every node/.style={font=\footnotesize\bfseries,text=white}]
-      \fill[rgreen!70] (0,1) rectangle (1,2); \node at (0.5,1.5){97};
-      \fill[rred!25]   (1,1) rectangle (2,2); \node at (1.5,1.5){0};
-      \fill[rred!45]   (0,0) rectangle (1,1); \node at (0.5,0.5){3};
-      \fill[rred!25]   (1,0) rectangle (2,1); \node at (1.5,0.5){0};
-    \end{tikzpicture}
-  \column{0.5\textwidth}\centering
-    {\color{muted}\scriptsize Après rééquilibrage}\\[2pt]
-    \begin{tikzpicture}[scale=0.62,every node/.style={font=\footnotesize\bfseries,text=white}]
-      \fill[rgreen!75] (0,1) rectangle (1,2); \node at (0.5,1.5){88};
-      \fill[rred!35]   (1,1) rectangle (2,2); \node at (1.5,1.5){9};
-      \fill[rred!30]   (0,0) rectangle (1,1); \node at (0.5,0.5){1};
-      \fill[rgreen!60] (1,0) rectangle (2,1); \node at (1.5,0.5){12};
-    \end{tikzpicture}
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item Le secteur bancaire marocain fait face à un \textbf{risque croissant
+              de défaillance} d'entreprises.
+        \item Les méthodes traditionnelles (scoring manuel, ratios simples) sont
+              \textbf{limitées et subjectives}.
+        \item Besoin d'un outil \textbf{automatisé, fiable et rapide} pour
+              classifier le niveau de risque.
+      \end{itemize}
+      \vfill
+      \begin{block}{Question centrale}
+        Comment prédire la \emph{probabilité de faillite} d'une entreprise à
+        partir de ses \emph{ratios financiers}~?
+      \end{block}
+    \column{0.45\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[width=\linewidth,height=5cm,
+          title={\small Hausse des défaillances (indice)},
+          xlabel={Année},ylabel={Indice},
+          xtick={2018,2020,2022,2024},
+          ymin=0,grid=both,grid style={gray!25},
+          tick label style={font=\scriptsize}]
+          \addplot[thick,mark=*] coordinates
+            {(2018,22)(2019,28)(2020,26)(2021,35)(2022,41)(2023,52)(2024,63)(2025,78)};
+        \end{axis}
+      \end{tikzpicture}
   \end{columns}
-\end{columns}
 \end{frame}
 
-%=========================== SLIDE 8 - SMOTE + GAUSSIEN =======================
-\kick{Génération de données synthétiques}
+%==============================================================================
+\section{Objectifs du projet}
+%==============================================================================
+\begin{frame}{Objectifs du projet}
+  \begin{itemize}
+    \item Construire un \textbf{pipeline ML complet} : de la donnée brute à la
+          prédiction en temps réel.
+    \item Classifier les entreprises en \textbf{4 niveaux de risque} : Faible,
+          Modéré, Élevé, Critique.
+    \item Développer une \textbf{interface web intuitive} pour les analystes
+          bancaires.
+    \item Fournir des explications sur les décisions du modèle
+          (\textbf{interprétabilité via SHAP}).
+    \item Permettre l'\textbf{analyse unitaire et batch} (CSV / Excel).
+  \end{itemize}
+\end{frame}
+
+%==============================================================================
+\section{Données \& Prétraitement}
+%==============================================================================
+\begin{frame}{Présentation du jeu de données}
+  \begin{columns}[T]
+    \column{0.56\textwidth}
+      \begin{itemize}
+        \item \textbf{Source} : « Company Bankruptcy Prediction »
+              (Taiwan Economic Journal).
+        \item \textbf{96 colonnes} de ratios financiers : ROA, ROE, liquidité,
+              endettement, trésorerie\dots
+        \item \textbf{Cible} : \texttt{Bankrupt?} --- 0 = sain, 1 = défaillant.
+        \item Environ \textbf{6\,800 observations} initiales.
+      \end{itemize}
+      \begin{alertblock}{Problème majeur}
+        Déséquilibre extrême des classes : $\sim$3\,\% de faillites contre
+        97\,\% d'entreprises saines.
+      \end{alertblock}
+    \column{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[width=\linewidth,height=5cm,ybar,
+          title={\small Déséquilibre des classes},
+          symbolic x coords={Sains,Faillite},xtick=data,
+          ymin=0,ymax=100,ylabel={\% des observations},
+          nodes near coords,bar width=24pt,
+          tick label style={font=\scriptsize}]
+          \addplot coordinates {(Sains,97) (Faillite,3)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Nettoyage des données (Data Cleaning)}
+  \begin{columns}[T]
+    \column{0.6\textwidth}
+      \begin{enumerate}
+        \item Détection et suppression des \textbf{doublons}.
+        \item Valeurs manquantes : \textbf{imputation par la médiane}
+              (robuste aux outliers).
+        \item Détection des outliers via \textbf{IQR} --- capping aux
+              percentiles 1\,\% et 99\,\%.
+        \item Suppression des features à \textbf{variance quasi-nulle}
+              ($>$95\,\% de valeurs identiques).
+        \item Corrélation : suppression si \textbf{corrélation $>$ 0.95}
+              (multicolinéarité).
+        \item \textbf{Normalisation} des noms de colonnes.
+      \end{enumerate}
+    \column{0.4\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[width=\linewidth,height=4cm,ybar,
+          title={\small Réduction des features},
+          symbolic x coords={Avant,Après},xtick=data,
+          ymin=0,ymax=110,nodes near coords,bar width=24pt,
+          tick label style={font=\scriptsize}]
+          \addplot coordinates {(Avant,96) (Après,65)};
+        \end{axis}
+      \end{tikzpicture}\\[2pt]
+      {\footnotesize Résultat : 96 $\rightarrow$ $\sim$65 features pertinentes.}
+  \end{columns}
+\end{frame}
+
+%==============================================================================
+\section{Données synthétiques (SMOTE + Bruit Gaussien)}
+%==============================================================================
+\begin{frame}{Pourquoi générer des données synthétiques~?}
+  \begin{columns}[T]
+    \column{0.55\textwidth}
+      \begin{itemize}
+        \item Avec $\sim$3\,\% de cas positifs, le modèle apprend à
+              \textbf{toujours prédire « sain »}.
+        \item \textbf{Accuracy trompeuse} : 97\,\% en prédisant toujours 0
+              $\rightarrow$ inutile.
+        \item Le \textbf{recall} sur la classe minoritaire (faillite) est
+              quasi nul sans rééquilibrage.
+        \item \textbf{Solution} : augmenter la classe minoritaire avec des
+              données synthétiques réalistes.
+      \end{itemize}
+    \column{0.45\textwidth}
+      \centering
+      \footnotesize Matrices de confusion\\[4pt]
+      \begin{tabular}{c@{\hskip 1.2em}c}
+        \emph{Avant} & \emph{Après}\\[2pt]
+        \begin{tabular}{|c|c|}\hline 97 & 0\\\hline 3 & 0\\\hline\end{tabular} &
+        \begin{tabular}{|c|c|}\hline 88 & 9\\\hline 1 & 12\\\hline\end{tabular}\\[6pt]
+      \end{tabular}\\[4pt]
+      {\scriptsize Lignes = réel (0/1), colonnes = prédit (0/1).}
+  \end{columns}
+\end{frame}
+
 \begin{frame}{SMOTE + Bruit Gaussien}
-\timing{2 min}
-\begin{columns}[T]
-\column{0.54\textwidth}
-  \begin{block}{\textcolor{navydark}{1.\ SMOTE -- Synthetic Minority Over-sampling}}
-    \small Interpolation entre \textbf{voisins proches (k-NN)} : un point est généré sur le segment vers un voisin.
-    \[ x_{new} = x_i + \lambda\,(x_{voisin}-x_i),\quad \lambda\in[0,1] \]
+  \begin{block}{Étape 1 --- SMOTE (Synthetic Minority Over-sampling)}
+    Interpolation entre voisins proches ($k$-NN) : pour chaque exemple
+    minoritaire, un point est généré sur le segment vers un voisin.
+    \[ x_{\text{new}} = x_i + \lambda\,(x_{\text{voisin}} - x_i),
+       \qquad \lambda \in [0,1]. \]
   \end{block}
-  \vspace{0.3em}
-  \begin{block}{\textcolor{navydark}{2.\ Ajout de bruit gaussien}}
-    \small Un léger bruit normal évite des données trop « lisses » et limite le sur-apprentissage.
-    \[ x_{final} = x_{smote} + \varepsilon,\quad \varepsilon\sim\mathcal{N}(0,\sigma^2) \]
-    {\footnotesize\color{muted}$\sigma = 0.01 \times$ écart-type de la feature.}
+  \begin{block}{Étape 2 --- Ajout de bruit gaussien}
+    Un léger bruit normal évite des données trop « lisses » et limite le
+    sur-apprentissage sur des patterns artificiellement réguliers.
+    \[ x_{\text{final}} = x_{\text{smote}} + \varepsilon,
+       \qquad \varepsilon \sim \mathcal{N}(0,\sigma^2),\;
+       \sigma = 0.01 \times \text{écart-type}. \]
   \end{block}
-\column{0.46\textwidth}
-  \centering {\color{gold}\small Interpolation SMOTE}\\[2pt]
-  \begin{tikzpicture}[scale=0.5]
-    \draw[gold,dashed] (1,1)--(3,5); \draw[gold,dashed] (3,5)--(7,4.5);
-    \foreach \p in {(1,1),(3,5),(5,3),(7,4.5),(4,0.5)}
-      \fill[rred] \p circle (5pt);
-    \foreach \p in {(1.8,2.6),(2.4,4.2),(5,4.75)}
-      \fill[gold] \p circle (4pt);
-  \end{tikzpicture}\\[4pt]
-  {\color{gold}\small Bruit gaussien $\mathcal{N}(0,\sigma^2)$}\\[-4pt]
-  \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=2.5cm,ticks=none,domain=-3:3,samples=60,
-      axis lines=none,ymin=0]
-      \addplot[gold,line width=1.2pt]{exp(-x^2/0.7)};
-    \end{axis}
-  \end{tikzpicture}
-\end{columns}
 \end{frame}
 
-%=========================== SLIDE 9 - 4 CLASSES ==============================
-\kick{Multi-classification}
-\begin{frame}{4 classes de risque}
-\timing{30 s}
-\vspace{0.2em}
-{\color{muted} Le problème binaire devient une échelle de risque, plus utile qu'un simple oui/non.}
-\vspace{1em}
+\begin{frame}{Transformation en 4 classes de risque}
+  \centering
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabular}{>{\bfseries}l c l}
+    \toprule
+    Niveau & Probabilité & Interprétation\\
+    \midrule
+    \rowcolor{green!25}  Faible   & 0--25\,\%   & Entreprise financièrement saine.\\
+    \rowcolor{yellow!35} Modéré   & 25--50\,\%  & Vigilance requise.\\
+    \rowcolor{orange!35} Élevé    & 50--75\,\%  & Risque significatif, surveillance active.\\
+    \rowcolor{red!30}    Critique & 75--100\,\% & Risque imminent de défaillance.\\
+    \bottomrule
+  \end{tabular}
 
-\newcommand{\riskcard}[5]{%
-  \begin{tikzpicture}
-    \node[fill=#1,rounded corners=8pt,inner sep=8pt,text width=0.9\linewidth,
-          text=#5,minimum height=2.6cm,align=left]{%
-      {\bfseries\small #3}\\[4pt]{\Large\bfseries #2}\\[4pt]{\small #4}};
-  \end{tikzpicture}}
-\begin{columns}[T]
-  \column{0.25\textwidth}\riskcard{rgreen}{Faible}{0--25\%}{Entreprise saine}{navydark}
-  \column{0.25\textwidth}\riskcard{ryellow}{Modéré}{25--50\%}{Vigilance requise}{navydark}
-  \column{0.25\textwidth}\riskcard{rorange}{Élevé}{50--75\%}{Surveillance active}{navydark}
-  \column{0.25\textwidth}\riskcard{rred}{Critique}{75--100\%}{Risque imminent}{white}
-\end{columns}
-
-\vspace{1.2em}
-\begin{tikzpicture}
-  \shade[left color=rgreen,right color=rred,middle color=rorange]
-    (0,0) rectangle (\linewidth,0.5);
-\end{tikzpicture}
+  \vspace{1em}
+  {\footnotesize Une granularité plus utile aux analystes qu'un simple oui/non.}
 \end{frame}
 
-%=========================== SLIDE 10 - BENCHMARK =============================
-\kick{Comparaison des modèles ML}
+%==============================================================================
+\section{Comparaison des modèles ML}
+%==============================================================================
 \begin{frame}{Benchmark des modèles testés}
-\timing{2 min}
-\begin{columns}[T]
-\column{0.56\textwidth}
-  \footnotesize
-  \renewcommand{\arraystretch}{1.25}
-  \arrayrulecolor{navy}
+  \centering
+  \renewcommand{\arraystretch}{1.2}
   \begin{tabular}{lcccc}
     \toprule
-    \rowcolor{navy}
-    \textcolor{gold}{\bfseries Modèle} & \textcolor{gold}{Acc.} & \textcolor{gold}{F1} & \textcolor{gold}{AUC} & \textcolor{gold}{Train}\\
+    \textbf{Modèle} & \textbf{Accuracy} & \textbf{F1} & \textbf{AUC-ROC} & \textbf{Entraînement}\\
     \midrule
-    Régression Log. & 78\% & 0.72 & 0.81 & Très rapide\\
-    Random Forest   & 89\% & 0.86 & 0.92 & Moyen\\
-    SVM (RBF)       & 82\% & 0.78 & 0.85 & Lent\\
-    KNN             & 80\% & 0.75 & 0.83 & Rapide\\
-    \rowcolor{gold!18}
-    \textbf{XGBoost} $\star$ & \textbf{94\%} & \textbf{0.93} & \textbf{0.97} & Moyen\\
-    LightGBM        & 93\% & 0.91 & 0.96 & Rapide\\
+    Régression Logistique & 78\,\% & 0.72 & 0.81 & Très rapide\\
+    Random Forest         & 89\,\% & 0.86 & 0.92 & Moyen\\
+    SVM (RBF)             & 82\,\% & 0.78 & 0.85 & Lent\\
+    KNN                   & 80\,\% & 0.75 & 0.83 & Rapide\\
+    \rowcolor{blue!12}
+    \textbf{XGBoost}      & \textbf{94\,\%} & \textbf{0.93} & \textbf{0.97} & Moyen\\
+    LightGBM              & 93\,\% & 0.91 & 0.96 & Rapide\\
     \bottomrule
-  \end{tabular}\\[0.8em]
-  {\color{gold}\small $\star$ XGBoost domine sur toutes les métriques.}
-\column{0.44\textwidth}
-  \centering {\color{gold}\small F1-Score par modèle}\\[2pt]
+  \end{tabular}
+
+  \vspace{0.8em}
   \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=4.6cm,xbar,xmin=0,xmax=1,
-      symbolic y coords={XGBoost,LightGBM,RF,SVM,KNN,RegLog},
-      ytick=data,xtick=\empty,
-      nodes near coords,nodes near coords style={text=ink,font=\scriptsize}]
-      \addplot[fill=rbluel,draw=none] coordinates
-        {(0.75,RegLog)(0.78,SVM)(0.75,KNN)(0.86,RF)(0.91,LightGBM)};
-      \addplot[fill=gold,draw=none] coordinates {(0.93,XGBoost)};
+    \begin{axis}[width=0.85\linewidth,height=3.6cm,xbar,xmin=0,xmax=1,
+      title={\small F1-Score par modèle},
+      symbolic y coords={XGBoost,LightGBM,RandomForest,SVM,KNN,RegLog},
+      ytick=data,nodes near coords,
+      tick label style={font=\scriptsize}]
+      \addplot coordinates
+        {(0.72,RegLog)(0.78,SVM)(0.75,KNN)(0.86,RandomForest)(0.91,LightGBM)(0.93,XGBoost)};
     \end{axis}
   \end{tikzpicture}
-\end{columns}
 \end{frame}
 
-%=========================== SLIDE 11 - POURQUOI XGBOOST ======================
-\kick{Justification du choix}
-\begin{frame}{Pourquoi XGBoost ?}
-\timing{1 min 30}
-\begin{columns}[T]
-\column{0.55\textwidth}
-  \small
-  \begin{enumerate}
-    \item \textbf{Performance} : meilleur F1 \& AUC-ROC.
-    \item \textbf{Déséquilibre} géré : \texttt{scale\_pos\_weight}.
-    \item \textbf{Régularisation L1+L2} : anti-surapprentissage.
-    \item \textbf{Robuste aux outliers} (arbres de décision).
-    \item \textbf{Feature importance} $\rightarrow$ interprétabilité.
-    \item \textbf{Optuna} : tuning bayésien (30 essais).
-    \item \textbf{Inférence} $<$ 100 ms par requête.
-    \item \textbf{Écosystème mature}, standard en finance.
-  \end{enumerate}
-\column{0.45\textwidth}
-  \centering {\color{gold}\small Gradient Boosting séquentiel}\\[4pt]
-  \begin{tikzpicture}[scale=0.8,node distance=1.1cm,
-    tree/.style={circle,fill=rbluel,text=navydark,font=\footnotesize\bfseries,minimum size=0.8cm}]
-    \node[tree](t1){T1};
-    \node[tree,right=of t1](t2){T2};
-    \node[tree,right=of t2](t3){T3};
-    \node[tree,fill=gold,right=of t3](t4){T4};
-    \draw[gold,-{Latex}](t1)--(t2);
-    \draw[gold,-{Latex}](t2)--(t3);
-    \draw[gold,-{Latex}](t3)--(t4);
-  \end{tikzpicture}\\[6pt]
-  \rgcard{0.92\linewidth}{%
-    {\color{gold}\faTimesCircle\ \bfseries Pourquoi pas les autres ?}\\[3pt]
-    \scriptsize
-    \textbullet\ Rég. logistique : pas de non-linéarités.\\
-    \textbullet\ SVM : lent, peu interprétable.\\
-    \textbullet\ Random Forest : sans boosting séquentiel.\\
-    \textbullet\ Deep Learning : trop complexe, « boîte noire ».}
-\end{columns}
+%==============================================================================
+\section{Pourquoi XGBoost~?}
+%==============================================================================
+\begin{frame}{Pourquoi XGBoost~? --- Justification}
+  \begin{columns}[T]
+    \column{0.58\textwidth}
+      \begin{enumerate}
+        \item \textbf{Performance} : meilleur F1 et AUC-ROC.
+        \item \textbf{Gestion du déséquilibre} : \texttt{scale\_pos\_weight}.
+        \item \textbf{Régularisation L1 + L2} : anti-surapprentissage.
+        \item \textbf{Robustesse aux outliers} (arbres de décision).
+        \item \textbf{Feature importance} $\Rightarrow$ interprétabilité.
+        \item \textbf{Optuna} : tuning bayésien (30 essais).
+        \item \textbf{Inférence rapide} ($<$ 100 ms).
+        \item \textbf{Écosystème mature}, standard en finance.
+      \end{enumerate}
+    \column{0.42\textwidth}
+      \begin{exampleblock}{Pourquoi pas les autres~?}
+        \begin{itemize}
+          \item Rég. logistique : pas de non-linéarités.
+          \item SVM : lent, peu interprétable.
+          \item Random Forest : sans boosting séquentiel.
+          \item Deep Learning : trop complexe, « boîte noire ».
+        \end{itemize}
+      \end{exampleblock}
+      \centering
+      \begin{tikzpicture}[node distance=0.7cm,
+        tree/.style={circle,draw,minimum size=0.6cm,font=\scriptsize}]
+        \node[tree](t1){$T_1$};
+        \node[tree,right=of t1](t2){$T_2$};
+        \node[tree,right=of t2](t3){$T_3$};
+        \draw[-{Latex}](t1)--(t2);
+        \draw[-{Latex}](t2)--(t3);
+      \end{tikzpicture}\\
+      {\scriptsize Gradient boosting : arbres séquentiels.}
+  \end{columns}
 \end{frame}
 
-%=========================== SLIDE 12 - OPTUNA ================================
-\kick{Optimisation des hyperparamètres}
-\begin{frame}{Tuning avec Optuna}
-\timing{1 min}
-\begin{columns}[T]
-\column{0.52\textwidth}
-  \begin{itemize}
-    \item \textbf{Optimisation bayésienne} -- plus intelligente que Grid Search.
-    \item \textbf{30 essais} d'optimisation automatique.
-    \item \textbf{Validation croisée stratifiée (5-fold)}.
-  \end{itemize}
-  \vspace{0.4em}
-  \rgcard{0.93\linewidth}{%
-    {\color{gold}\bfseries Hyperparamètres optimisés}\\[4pt]
-    \small \texttt{max\_depth} \textbullet\ \texttt{learning\_rate} \textbullet\ \texttt{n\_estimators}
-    \textbullet\ \texttt{subsample} \textbullet\ \texttt{colsample\_bytree}
-    \textbullet\ \texttt{reg\_alpha} \textbullet\ \texttt{reg\_lambda}}
-\column{0.48\textwidth}
-  \centering {\color{gold}\small Convergence des essais}\\[2pt]
-  \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=4.6cm,xlabel={essais},ylabel={AUC-ROC},
-      xmin=0,xmax=30,ymin=0.6,ymax=1,ymajorgrids]
-      \addplot[only marks,mark=*,mark size=1pt,rbluel] coordinates
-        {(1,.70)(2,.66)(4,.74)(6,.76)(8,.79)(10,.80)(12,.85)(14,.87)(16,.88)
-         (18,.90)(20,.905)(22,.91)(24,.918)(26,.92)(28,.925)(30,.929)};
-      \addplot[gold,line width=1.4pt] coordinates
-        {(1,.70)(4,.74)(6,.78)(10,.84)(14,.88)(18,.905)(22,.915)(26,.925)(30,.93)};
-    \end{axis}
-  \end{tikzpicture}
-\end{columns}
+\begin{frame}{Optimisation des hyperparamètres avec Optuna}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Optimisation bayésienne} (plus intelligente que Grid Search).
+        \item \textbf{30 essais} d'optimisation automatique.
+        \item \textbf{Validation croisée stratifiée} (5-fold).
+      \end{itemize}
+      \begin{block}{Hyperparamètres optimisés}
+        \small \texttt{max\_depth}, \texttt{learning\_rate},
+        \texttt{n\_estimators}, \texttt{subsample},
+        \texttt{colsample\_bytree}, \texttt{reg\_alpha}, \texttt{reg\_lambda}.
+      \end{block}
+    \column{0.5\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[width=\linewidth,height=5cm,
+          title={\small Convergence Optuna},
+          xlabel={Essais},ylabel={AUC-ROC},
+          xmin=0,xmax=30,ymin=0.6,ymax=1,grid=both,grid style={gray!25},
+          tick label style={font=\scriptsize}]
+          \addplot[only marks,mark=*,mark size=1pt,gray] coordinates
+            {(1,.70)(2,.66)(4,.74)(6,.76)(8,.79)(10,.80)(12,.85)(14,.87)
+             (16,.88)(18,.90)(20,.905)(22,.91)(24,.918)(26,.92)(28,.925)(30,.929)};
+          \addplot[thick] coordinates
+            {(1,.70)(4,.74)(6,.78)(10,.84)(14,.88)(18,.905)(22,.915)(26,.925)(30,.93)};
+        \end{axis}
+      \end{tikzpicture}
+  \end{columns}
 \end{frame}
 
-%=========================== SLIDE 13 - ARCHITECTURE =========================
-\kick{Architecture technique}
+%==============================================================================
+\section{Architecture technique}
+%==============================================================================
 \begin{frame}{Architecture de la plateforme}
-\timing{1 min 30}
-\vspace{0.3em}
-\centering
-\begin{tikzpicture}[every node/.style={font=\small},
-  tier/.style={fill=card,draw=gold,line width=1pt,rounded corners=8pt,
-               text width=0.86\linewidth,inner sep=8pt,text=ink},
-  arr/.style={gold,-{Latex},line width=1.2pt}]
-  \node[tier](fe){%
-    {\color{gold}\faDesktop\ \bfseries Frontend} \quad{\color{muted}\footnotesize HTML / CSS / JS pur}\\[2pt]
-    \footnotesize Interface responsive \textbullet\ Dashboard KPIs \& graphiques \textbullet\ Historique \textbullet\ Mode démo (15 entreprises MA)};
-  \node[tier,below=0.9cm of fe](be){%
-    {\color{gold}\faCogs\ \bfseries Backend} \quad{\color{muted}\footnotesize FastAPI -- Python}\\[2pt]
-    \footnotesize API RESTful (8 endpoints) \textbullet\ Validation Pydantic \textbullet\ Rapports PDF \textbullet\ SQLite (historique)};
-  \node[tier,below=0.9cm of be](ml){%
-    {\color{gold}\faBrain\ \bfseries ML Pipeline} \quad{\color{muted}\footnotesize XGBoost -- joblib}\\[2pt]
-    \footnotesize Préprocessing $\rightarrow$ Feature selection $\rightarrow$ XGBoost $\rightarrow$ SHAP \textbullet\ Prédiction multi-classes + proba};
-  \draw[arr](fe)--node[right,muted,font=\scriptsize]{REST / JSON}(be);
-  \draw[arr](be)--node[right,muted,font=\scriptsize]{appel modèle}(ml);
-\end{tikzpicture}
-\end{frame}
-
-%=========================== SLIDE 14 - FONCTIONNALITES ======================
-\kick{Fonctionnalités clés}
-\begin{frame}{Fonctionnalités}
-\timing{1 min}
-\vspace{0.3em}
-\begin{columns}[T]
-\column{0.33\textwidth}
-  \feat{\faSearch}{Analyse unitaire}{Saisie manuelle des ratios.}\\[6pt]
-  \feat{\faChartLine}{Dashboard}{Distribution \& tendances.}
-\column{0.33\textwidth}
-  \feat{\faTable}{Analyse batch}{Upload CSV / Excel.}\\[6pt]
-  \feat{\faHistory}{Historique}{Filtrable et paginé.}
-\column{0.33\textwidth}
-  \feat{\faFilePdf}{Export PDF}{Rapport + recommandations.}\\[6pt]
-  \feat{\faBullseye}{Interprétabilité}{SHAP values par prédiction.}
-\end{columns}
-\vspace{1em}
-\centering
-\tikz\node[fill=gold!15,draw=golddeep,rounded corners=8pt,inner sep=8pt,text=goldsoft,font=\small\bfseries]
-  {\faBolt\ Temps réel -- réponse en moins de 100 ms par requête.};
-\end{frame}
-
-%=========================== SLIDE 15 - DEMO =================================
-\kick{Démonstration en direct}
-\begin{frame}{Place à la démo}
-\centering
-\vspace{0.4em}
-{\color{gold}\Huge\faPlayCircle}\\[1em]
-\begin{columns}[T]
-\column{0.45\textwidth}
-  \feat{\faCircle[regular]}{Scénario 1}{Entreprise à risque faible.}\\[6pt]
-  \feat{\faCircle[regular]}{Scénario 3}{Upload batch d'un fichier CSV.}
-\column{0.45\textwidth}
-  \feat{\faCircle[regular]}{Scénario 2}{Entreprise à risque critique.}\\[6pt]
-  \feat{\faCircle[regular]}{Rapport PDF}{Génération \& export.}
-\end{columns}
-\vspace{1em}
-\tikz\node[fill=gold!12,draw=golddeep,rounded corners=6pt,inner sep=8pt,text width=0.85\linewidth,text=ink,font=\small]
-  {{\color{gold}\bfseries Note présentateur :} préparer le backend lancé
-   (\texttt{uvicorn main:app --port 8000}) + le fichier \texttt{test\_batch.csv}.};
-\end{frame}
-
-%=========================== SLIDE 16 - RESULTATS ============================
-\kick{Résultats du modèle final}
-\begin{frame}{Résultats \& Métriques}
-\timing{1 min}
-\centering
-\newcommand{\statcard}[2]{%
-  \begin{tikzpicture}
-    \node[fill=gold!12,draw=golddeep,rounded corners=8pt,inner sep=8pt,
-          text width=0.85\linewidth,align=center]{%
-      {\color{gold}\Large\bfseries #1}\\[2pt]{\color{muted}\footnotesize #2}};
-  \end{tikzpicture}}
-\begin{columns}[c]
-  \column{0.3\textwidth}\statcard{94\%}{Accuracy}
-  \column{0.3\textwidth}\statcard{0.93}{F1-Score macro}
-  \column{0.3\textwidth}\statcard{0.97}{AUC-ROC}
-\end{columns}
-\vspace{0.8em}
-\begin{columns}[T]
-\column{0.32\textwidth}\centering
-  {\color{gold}\scriptsize Matrice de confusion}\\[2pt]
-  \begin{tikzpicture}[scale=0.62,every node/.style={font=\scriptsize\bfseries,text=white}]
-    \fill[rgreen!75] (0,1) rectangle (1,2); \node at (0.5,1.5){1577};
-    \fill[rred!30]   (1,1) rectangle (2,2); \node at (1.5,1.5){43};
-    \fill[rred!30]   (0,0) rectangle (1,1); \node at (0.5,0.5){33};
-    \fill[rgreen!65] (1,0) rectangle (2,1); \node at (1.5,0.5){311};
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\small},
+    box/.style={draw,rounded corners,fill=blue!8,text width=0.8\linewidth,
+                inner sep=6pt},
+    arr/.style={-{Latex},thick}]
+    \node[box](fe){\textbf{Frontend} (HTML/CSS/JS pur) : interface responsive,
+      dashboard KPIs \& graphiques, historique, mode démo.};
+    \node[box,below=0.7cm of fe](be){\textbf{Backend} (FastAPI / Python) :
+      API RESTful (8 endpoints), validation Pydantic, rapports PDF, SQLite.};
+    \node[box,below=0.7cm of be](ml){\textbf{ML Pipeline} (XGBoost / joblib) :
+      préprocessing $\rightarrow$ feature selection $\rightarrow$ XGBoost
+      $\rightarrow$ SHAP $\rightarrow$ prédiction multi-classes.};
+    \draw[arr](fe)--node[right]{\scriptsize REST / JSON}(be);
+    \draw[arr](be)--node[right]{\scriptsize appel modèle}(ml);
   \end{tikzpicture}
-\column{0.30\textwidth}\centering
-  {\color{gold}\scriptsize Courbe ROC}\\[2pt]
-  \begin{tikzpicture}[scale=0.62]
-    \draw[muted] (0,0) rectangle (2.6,2.6);
-    \draw[muted,dashed] (0,0)--(2.6,2.6);
-    \draw[gold,line width=1.4pt]
-      (0,0) .. controls (0.1,1.6) and (0.4,2.4) .. (1,2.5) -- (2.6,2.6);
-    \node[gold,font=\scriptsize\bfseries] at (1.7,0.6){AUC 0.97};
-  \end{tikzpicture}
-\column{0.36\textwidth}\centering
-  {\color{gold}\scriptsize Top 5 features}\\[2pt]
-  \begin{tikzpicture}
-    \begin{axis}[rgaxis,height=3.0cm,xbar,xmin=0,xmax=0.45,
-      symbolic y coords={Retained,WorkCap,Current,ROA,Debt},
-      ytick=data,xtick=\empty,yticklabel style={font=\tiny}]
-      \addplot[fill=rbluel,draw=none] coordinates
-        {(0.10,Retained)(0.12,WorkCap)(0.19,Current)(0.30,ROA)};
-      \addplot[fill=gold,draw=none] coordinates {(0.39,Debt)};
-    \end{axis}
-  \end{tikzpicture}
-\end{columns}
 \end{frame}
 
-%=========================== SLIDE 17 - CONCLUSION ===========================
-\kick{Bilan}
+\begin{frame}{Fonctionnalités clés}
+  \begin{columns}[T]
+    \column{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Analyse unitaire} : saisie manuelle des ratios.
+        \item \textbf{Analyse batch} : upload CSV / Excel.
+        \item \textbf{Dashboard} : distribution des risques, tendances.
+        \item \textbf{Historique} : analyses filtrables et paginées.
+      \end{itemize}
+    \column{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Export PDF} : rapport détaillé + recommandations.
+        \item \textbf{Interprétabilité} : SHAP values par prédiction.
+        \item \textbf{Temps réel} : réponse en moins de 100 ms.
+      \end{itemize}
+  \end{columns}
+\end{frame}
+
+%==============================================================================
+\section{Démonstration}
+%==============================================================================
+\begin{frame}{Démonstration en direct}
+  \begin{itemize}
+    \item \textbf{Scénario 1} : analyser une entreprise à risque faible.
+    \item \textbf{Scénario 2} : analyser une entreprise à risque critique.
+    \item \textbf{Scénario 3} : upload batch d'un fichier CSV.
+    \item Montrer le \textbf{rapport PDF} généré.
+  \end{itemize}
+  \vfill
+  \begin{block}{Note au présentateur}
+    Préparer le backend lancé (\texttt{uvicorn main:app --port 8000}) et le
+    fichier \texttt{test\_batch.csv}.
+  \end{block}
+\end{frame}
+
+%==============================================================================
+\section{Résultats \& Métriques}
+%==============================================================================
+\begin{frame}{Résultats du modèle final}
+  \begin{columns}[T]
+    \column{0.4\textwidth}
+      \begin{block}{Métriques globales}
+        \begin{itemize}
+          \item Accuracy : $\sim$\textbf{94\,\%}
+          \item F1-Score macro : $\sim$\textbf{0.93}
+          \item AUC-ROC : $\sim$\textbf{0.97}
+        \end{itemize}
+      \end{block}
+      \begin{block}{Top 5 features}
+        \small
+        \begin{enumerate}
+          \item Debt Ratio
+          \item Net Income / Total Assets (ROA)
+          \item Current Ratio
+          \item Working Capital / Total Assets
+          \item Retained Earnings / Total Assets
+        \end{enumerate}
+      \end{block}
+    \column{0.6\textwidth}
+      \centering
+      \footnotesize Matrice de confusion\\[2pt]
+      \begin{tabular}{cc|cc}
+        & & \multicolumn{2}{c}{\emph{Prédit}}\\
+        & & Sain & Faillite\\
+        \cline{2-4}
+        \multirow{2}{*}{\rotatebox{90}{\emph{Réel}}}
+        & Sain & \cellcolor{blue!15}1577 & 43\\
+        & Faillite & 33 & \cellcolor{blue!15}311\\
+      \end{tabular}
+
+      \vspace{0.6em}
+      \begin{tikzpicture}
+        \begin{axis}[width=0.9\linewidth,height=3.4cm,
+          title={\small Courbe ROC},
+          xlabel={Taux faux positifs},ylabel={Taux vrais positifs},
+          xmin=0,xmax=1,ymin=0,ymax=1,grid=both,grid style={gray!20},
+          tick label style={font=\scriptsize}]
+          \addplot[dashed,gray] coordinates {(0,0)(1,1)};
+          \addplot[thick] coordinates
+            {(0,0)(0.02,0.55)(0.04,0.78)(0.08,0.88)(0.15,0.94)(0.3,0.97)(0.6,0.99)(1,1)};
+          \node at (axis cs:0.6,0.4){\scriptsize AUC = 0.97};
+        \end{axis}
+      \end{tikzpicture}
+  \end{columns}
+\end{frame}
+
+%==============================================================================
+\section{Conclusion \& Perspectives}
+%==============================================================================
 \begin{frame}{Conclusion}
-\timing{30 s}
-\vspace{0.6em}
-\large
-\begin{itemize}
-  \setbeamertemplate{itemize item}{\color{rgreen}\faCheckCircle}
-  \item Pipeline ML \textbf{complet de bout en bout}.
-  \item Résolution du \textbf{déséquilibre} via SMOTE + bruit gaussien.
-  \item \textbf{XGBoost} : choix justifié par performances et interprétabilité.
-  \item Plateforme web \textbf{fonctionnelle et intuitive}.
-  \item Applicable au \textbf{contexte bancaire marocain}.
-\end{itemize}
+  \begin{itemize}
+    \item Pipeline ML \textbf{complet de bout en bout}.
+    \item Résolution du \textbf{déséquilibre} via SMOTE + bruit gaussien.
+    \item \textbf{XGBoost} : choix justifié par les performances et
+          l'interprétabilité.
+    \item Plateforme web \textbf{fonctionnelle et intuitive}.
+    \item Applicable au \textbf{contexte bancaire marocain}.
+  \end{itemize}
 \end{frame}
 
-%=========================== SLIDE 18 - PERSPECTIVES =========================
-\kick{Et après ?}
-\begin{frame}{Perspectives \& Améliorations}
-\timing{30 s}
-\vspace{0.3em}
-\begin{columns}[T]
-\column{0.5\textwidth}
-  \feat{\faUniversity}{Données réelles marocaines}{Bank Al-Maghrib, OMPIC.}\\[6pt]
-  \feat{\faFileAlt}{Données textuelles (NLP)}{Rapports d'audit analysés.}\\[6pt]
-  \feat{\faCloud}{Déploiement cloud}{AWS / Azure en production.}
-\column{0.5\textwidth}
-  \feat{\faChartArea}{Monitoring du modèle}{Détection de drift.}\\[6pt]
-  \feat{\faBuilding}{Extension PME / TPE}{Features adaptées.}\\[6pt]
-  \feat{\faPlug}{API publique}{Intégration tierce (SaaS).}
-\end{columns}
+\begin{frame}{Perspectives \& Améliorations futures}
+  \begin{itemize}
+    \item Intégration de données réelles d'entreprises marocaines
+          (Bank Al-Maghrib, OMPIC).
+    \item Ajout de données textuelles (rapports d'audit) via NLP.
+    \item Déploiement cloud (AWS / Azure) pour usage en production.
+    \item Monitoring du modèle (\emph{drift detection}).
+    \item Extension aux PME / TPE avec features adaptées.
+  \end{itemize}
 \end{frame}
 
-%=========================== SLIDE 19 - MERCI ================================
-\kick{}
-{
-\setbeamertemplate{footline}{}
+%=========================== MERCI ============================================
 \begin{frame}[plain]
-\begin{tikzpicture}[remember picture,overlay]
-  \fill[navydark](current page.south west) rectangle (current page.north east);
-\end{tikzpicture}
-\centering
-\vspace{1.4cm}
-{\color{gold}\Huge\faShieldAlt}\\[0.8em]
-{\color{white}\huge\bfseries Merci pour votre attention}\\[0.4em]
-{\color{gold}\Large\bfseries Questions ?}\\[1.2em]
-\begin{tabular}{ccc}
-  {\color{white}\bfseries Étudiant(s)} & {\color{white}\bfseries Contact} & {\color{white}\bfseries GitHub}\\[2pt]
-  {\color{goldsoft}\itshape [ à compléter ]} & {\color{goldsoft}\itshape [ email ]} & {\color{goldsoft}achrafbaaiz/riskguard-pro}\\
-\end{tabular}\\[1.2em]
-\colorbox{white}{\qrcode[height=2.2cm]{https://github.com/achrafbaaiz/riskguard-pro}}\\[4pt]
-{\color{muted}\footnotesize QR $\rightarrow$ dépôt GitHub du projet}
+  \centering
+  \vfill
+  {\usebeamercolor[fg]{title}\Huge\textbf{Merci pour votre attention}}\\[0.6em]
+  {\Large Questions~?}\\[1.4em]
+  {\normalsize Dépôt GitHub : \texttt{achrafbaaiz/riskguard-pro}}\\[0.3em]
+  {\footnotesize Contact : [\,à compléter\,]}
+  \vfill
 \end{frame}
-}
 
 \end{document}
