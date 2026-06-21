@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RiskGuard Pro — Présentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ============ SLIDE 1 — COVER ============ -->
+  <section class="slide cover">
+    <div class="reveal shield" aria-hidden="true">
+      <svg viewBox="0 0 120 120" width="120" height="120">
+        <defs>
+          <linearGradient id="shg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffe566"/><stop offset="1" stop-color="#e6b800"/>
+          </linearGradient>
+        </defs>
+        <path d="M60 6 L104 22 V58 C104 86 84 106 60 116 C36 106 16 86 16 58 V22 Z"
+              fill="url(#shg)" stroke="#fff" stroke-width="2"/>
+        <path d="M36 64 L50 78 L86 40" fill="none" stroke="#0a1238" stroke-width="7"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="34,52 44,44 54,50 66,34 78,42 90,30" fill="none"
+              stroke="#0a1238" stroke-width="3" stroke-linecap="round" opacity="0.35"/>
+      </svg>
+    </div>
+    <div class="reveal kicker" style="justify-content:center">Projet de Fin d'Année · 2025–2026</div>
+    <h1 class="reveal title">Risk<span class="gold">Guard</span> Pro</h1>
+    <p class="reveal subtitle" style="margin:14px auto 0">Plateforme Intelligente de Détection de Risque Bancaire pour Entreprises</p>
+
+    <div class="reveal meta">
+      <div><b>Étudiant(s)</b><span class="fill">[ À compléter ]</span></div>
+      <div><b>Encadrant</b><span class="fill">[ À compléter ]</span></div>
+      <div><b>Université</b><span class="fill">[ Logo / Nom ]</span></div>
+    </div>
+    <div class="reveal year">Année universitaire 2025 – 2026</div>
+  </section>
+
+  <!-- ============ SLIDE 2 — SOMMAIRE ============ -->
+  <section class="slide">
+    <span class="tbadge">30 s</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Plan de la présentation</div>
+      <h2 class="heading">Sommaire</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="toc reveal">
+      <div class="item"><span class="n">1</span> Contexte &amp; Problématique</div>
+      <div class="item"><span class="n">2</span> Objectifs du projet</div>
+      <div class="item"><span class="n">3</span> Données &amp; Prétraitement</div>
+      <div class="item"><span class="n">4</span> Données synthétiques (SMOTE + Bruit Gaussien)</div>
+      <div class="item"><span class="n">5</span> Comparaison des modèles ML</div>
+      <div class="item"><span class="n">6</span> Pourquoi XGBoost ?</div>
+      <div class="item"><span class="n">7</span> Architecture technique</div>
+      <div class="item"><span class="n">8</span> Démonstration</div>
+      <div class="item"><span class="n">9</span> Résultats &amp; Métriques</div>
+      <div class="item"><span class="n">10</span> Conclusion &amp; Perspectives</div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3 — CONTEXTE ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="cols wide-left">
+      <div>
+        <div class="heading-wrap reveal">
+          <div class="kicker">Pourquoi ce projet ?</div>
+          <h2 class="heading">Contexte &amp; Problématique</h2>
+          <div class="bar"></div>
+        </div>
+        <ul class="bullets">
+          <li class="reveal"><span class="ic">🏦</span><span>Le secteur bancaire marocain fait face à un <b>risque croissant de défaillance</b> d'entreprises.</span></li>
+          <li class="reveal"><span class="ic">📉</span><span>Les méthodes traditionnelles (scoring manuel, ratios simples) sont <b>limitées et subjectives</b>.</span></li>
+          <li class="reveal"><span class="ic">⚙️</span><span>Besoin d'un outil <b>automatisé, fiable et rapide</b> pour classifier le niveau de risque.</span></li>
+        </ul>
+        <div class="card reveal" style="margin-top:22px">
+          <h3>❓ Question centrale</h3>
+          <p>Comment prédire la <b style="color:#fff">probabilité de faillite</b> d'une entreprise à partir de ses <b style="color:#fff">ratios financiers</b> ?</p>
+        </div>
+      </div>
+      <div class="reveal" data-d="3">
+        <div class="card">
+          <h3>Hausse des défaillances d'entreprises</h3>
+          <svg viewBox="0 0 360 240" width="100%" height="240" id="ctxChart"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 — OBJECTIFS ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Ce que nous voulons livrer</div>
+      <h2 class="heading">Objectifs du projet</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="grid-cards">
+      <div class="feature reveal"><span class="emoji">🔄</span><div class="ftxt"><b>Pipeline ML complet</b><span>De la donnée brute à la prédiction en temps réel.</span></div></div>
+      <div class="feature reveal"><span class="emoji">🎚️</span><div class="ftxt"><b>4 niveaux de risque</b><span>Faible · Modéré · Élevé · Critique.</span></div></div>
+      <div class="feature reveal"><span class="emoji">💻</span><div class="ftxt"><b>Interface web intuitive</b><span>Pensée pour les analystes bancaires.</span></div></div>
+      <div class="feature reveal"><span class="emoji">🔍</span><div class="ftxt"><b>Interprétabilité (SHAP)</b><span>Expliquer chaque décision du modèle.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📑</span><div class="ftxt"><b>Analyse unitaire &amp; batch</b><span>Saisie manuelle ou import CSV/Excel.</span></div></div>
+      <div class="feature reveal"><span class="emoji">⚡</span><div class="ftxt"><b>Réponse temps réel</b><span>Prédiction en moins de 100 ms.</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 5 — DATASET ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="cols wide-left">
+      <div>
+        <div class="heading-wrap reveal">
+          <div class="kicker">Le jeu de données</div>
+          <h2 class="heading">Données utilisées</h2>
+          <div class="bar"></div>
+        </div>
+        <ul class="bullets">
+          <li class="reveal"><span class="ic">🗂️</span><span><b>Source :</b> « Company Bankruptcy Prediction » (Taiwan Economic Journal).</span></li>
+          <li class="reveal"><span class="ic">📊</span><span><b>96 colonnes</b> de ratios financiers : ROA, ROE, liquidité, endettement, activité, trésorerie…</span></li>
+          <li class="reveal"><span class="ic">🎯</span><span><b>Cible :</b> <code>Bankrupt?</code> — 0 = sain, 1 = défaillant.</span></li>
+          <li class="reveal"><span class="ic">🔢</span><span>Environ <b>6 800 observations</b> initiales.</span></li>
+        </ul>
+        <div class="card reveal" style="margin-top:20px;border-color:rgba(231,76,60,.5)">
+          <h3 style="color:#ff8e7a">⚠️ Problème majeur</h3>
+          <p><b style="color:#fff">Déséquilibre extrême</b> des classes : ~3 % de faillites contre 97 % d'entreprises saines.</p>
+        </div>
+      </div>
+      <div class="reveal" data-d="3">
+        <div class="card">
+          <h3>Déséquilibre des classes</h3>
+          <svg viewBox="0 0 320 240" width="100%" height="240" id="imbChart"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6 — DATA CLEANING ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min 30</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Prétraitement</div>
+      <h2 class="heading">Data Cleaning</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="cols wide-left">
+      <div>
+        <ul class="bullets">
+          <li class="reveal"><span class="ic">1</span><span>Détection &amp; <b>suppression des doublons</b>.</span></li>
+          <li class="reveal"><span class="ic">2</span><span>Valeurs manquantes : <b>imputation par la médiane</b> (robuste aux outliers).</span></li>
+          <li class="reveal"><span class="ic">3</span><span>Détection des outliers via <b>IQR</b> — capping aux percentiles 1 % et 99 %.</span></li>
+          <li class="reveal"><span class="ic">4</span><span>Suppression des features à <b>variance quasi-nulle</b> (&gt;95 % de valeurs identiques).</span></li>
+          <li class="reveal"><span class="ic">5</span><span>Corrélation : suppression des features avec <b>corrélation &gt; 0.95</b> (multicolinéarité).</span></li>
+          <li class="reveal"><span class="ic">6</span><span><b>Normalisation</b> des noms de colonnes.</span></li>
+        </ul>
+      </div>
+      <div class="stack">
+        <div class="card reveal center" data-d="3">
+          <h3>Réduction des features</h3>
+          <svg viewBox="0 0 280 150" width="100%" height="150" id="cleanChart"></svg>
+          <p class="muted" style="margin-top:6px;font-size:.9rem">96 features brutes → <b class="gold">~65</b> features pertinentes</p>
+        </div>
+        <div class="card reveal" data-d="4">
+          <h3>Pipeline de nettoyage</h3>
+          <p class="muted" style="font-size:.9rem">Doublons → Imputation → IQR capping → Variance → Corrélation → Normalisation</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 7 — POURQUOI SYNTHÉTIQUE ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="cols">
+      <div>
+        <div class="heading-wrap reveal">
+          <div class="kicker">Le piège du déséquilibre</div>
+          <h2 class="heading">Pourquoi générer des données synthétiques ?</h2>
+          <div class="bar"></div>
+        </div>
+        <ul class="bullets">
+          <li class="reveal"><span class="ic">🤖</span><span>Avec ~3 % de cas positifs, le modèle apprend à <b>toujours prédire « sain »</b>.</span></li>
+          <li class="reveal"><span class="ic">🎭</span><span><b>Accuracy trompeuse :</b> 97 % en prédisant toujours 0 → inutile !</span></li>
+          <li class="reveal"><span class="ic">📵</span><span>Le <b>recall</b> sur la classe « faillite » est quasi nul sans rééquilibrage.</span></li>
+          <li class="reveal"><span class="ic">✅</span><span><b>Solution :</b> augmenter la classe minoritaire avec des données synthétiques réalistes.</span></li>
+        </ul>
+      </div>
+      <div class="reveal" data-d="3">
+        <div class="card">
+          <h3>Matrice de confusion — avant / après</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
+            <div>
+              <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:6px">❌ Sans rééquilibrage</p>
+              <svg viewBox="0 0 160 160" width="100%" id="cmBefore"></svg>
+            </div>
+            <div>
+              <p class="muted" style="text-align:center;font-size:.82rem;margin-bottom:6px">✅ Après rééquilibrage</p>
+              <svg viewBox="0 0 160 160" width="100%" id="cmAfter"></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 8 — SMOTE + GAUSSIAN ============ -->
+  <section class="slide">
+    <span class="tbadge">2 min</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Génération de données synthétiques</div>
+      <h2 class="heading">SMOTE <span class="gold">+</span> Bruit Gaussien</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="cols">
+      <div class="stack">
+        <div class="card reveal">
+          <h3>① SMOTE — Synthetic Minority Over-sampling</h3>
+          <p style="font-size:.95rem">Crée de nouveaux exemples en <b>interpolant entre voisins proches (k-NN)</b>. Pour chaque exemple minoritaire, on génère un point sur le segment vers un voisin.</p>
+          <div class="formula" style="margin-top:12px">x<sub>new</sub> = x<sub>i</sub> + λ · (x<sub>voisin</sub> − x<sub>i</sub>) &nbsp;<small>λ ∈ [0,1]</small></div>
+        </div>
+        <div class="card reveal" data-d="2">
+          <h3>② Ajout de bruit gaussien</h3>
+          <p style="font-size:.95rem">Un léger bruit normal est ajouté à chaque feature pour éviter des données trop « lisses » et introduire une <b>variabilité réaliste</b>, limitant le sur-apprentissage.</p>
+          <div class="formula" style="margin-top:12px">x<sub>final</sub> = x<sub>smote</sub> + ε &nbsp;<small>ε ~ N(0, σ²), σ = 0.01 · écart-type</small></div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card reveal center" data-d="3">
+          <h3>Interpolation SMOTE</h3>
+          <svg viewBox="0 0 300 170" width="100%" id="smoteChart"></svg>
+        </div>
+        <div class="card reveal center" data-d="4">
+          <h3>Bruit gaussien N(0, σ²)</h3>
+          <svg viewBox="0 0 300 110" width="100%" id="gaussChart"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 9 — 4 CLASSES ============ -->
+  <section class="slide">
+    <span class="tbadge">30 s</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Multi-classification</div>
+      <h2 class="heading">4 classes de risque</h2>
+      <div class="bar"></div>
+    </div>
+    <p class="reveal subtitle" style="margin-bottom:26px">Le problème binaire devient une échelle de risque, plus utile aux analystes qu'un simple oui / non.</p>
+    <div class="risk-scale">
+      <div class="risk-step r-green reveal" data-d="1"><span class="pct">0 – 25 %</span><h4>Faible</h4><p>Entreprise financièrement saine.</p></div>
+      <div class="risk-step r-yellow reveal" data-d="2"><span class="pct">25 – 50 %</span><h4>Modéré</h4><p>Vigilance requise.</p></div>
+      <div class="risk-step r-orange reveal" data-d="3"><span class="pct">50 – 75 %</span><h4>Élevé</h4><p>Risque significatif, surveillance active.</p></div>
+      <div class="risk-step r-red reveal" data-d="4"><span class="pct">75 – 100 %</span><h4>Critique</h4><p>Risque imminent de défaillance.</p></div>
+    </div>
+    <div class="reveal" data-d="5" style="margin-top:26px">
+      <svg viewBox="0 0 900 26" width="100%" height="26" id="gradientBar"></svg>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 10 — BENCHMARK ============ -->
+  <section class="slide">
+    <span class="tbadge">2 min</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Comparaison des modèles ML</div>
+      <h2 class="heading">Benchmark des modèles testés</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="cols wide-left">
+      <table class="benchmark reveal" data-d="1">
+        <thead><tr><th>Modèle</th><th>Accuracy</th><th>F1</th><th>AUC-ROC</th><th>Entraînement</th></tr></thead>
+        <tbody>
+          <tr><td>Régression Logistique</td><td>78 %</td><td>0.72</td><td>0.81</td><td>Très rapide</td></tr>
+          <tr><td>Random Forest</td><td>89 %</td><td>0.86</td><td>0.92</td><td>Moyen</td></tr>
+          <tr><td>SVM (RBF)</td><td>82 %</td><td>0.78</td><td>0.85</td><td>Lent</td></tr>
+          <tr><td>KNN</td><td>80 %</td><td>0.75</td><td>0.83</td><td>Rapide</td></tr>
+          <tr class="best"><td>XGBoost ★</td><td class="win">94 %</td><td class="win">0.93</td><td class="win">0.97</td><td>Moyen</td></tr>
+          <tr><td>LightGBM</td><td>93 %</td><td>0.91</td><td>0.96</td><td>Rapide</td></tr>
+        </tbody>
+      </table>
+      <div class="reveal" data-d="3">
+        <div class="card">
+          <h3>F1-Score par modèle</h3>
+          <svg viewBox="0 0 340 250" width="100%" id="benchChart"></svg>
+        </div>
+      </div>
+    </div>
+    <p class="reveal" data-d="4" style="margin-top:16px;color:var(--gold);font-weight:600">★ XGBoost domine sur toutes les métriques.</p>
+  </section>
+
+  <!-- ============ SLIDE 11 — POURQUOI XGBOOST ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min 30</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Justification du choix</div>
+      <h2 class="heading">Pourquoi <span class="gold">XGBoost</span> ?</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="cols">
+      <div class="grid-cards">
+        <div class="feature reveal"><span class="emoji">🏆</span><div class="ftxt"><b>Performance supérieure</b><span>Meilleur F1 &amp; AUC-ROC.</span></div></div>
+        <div class="feature reveal"><span class="emoji">⚖️</span><div class="ftxt"><b>Gestion du déséquilibre</b><span><code>scale_pos_weight</code>.</span></div></div>
+        <div class="feature reveal"><span class="emoji">🛡️</span><div class="ftxt"><b>Régularisation L1 + L2</b><span>Évite le sur-apprentissage.</span></div></div>
+        <div class="feature reveal"><span class="emoji">📌</span><div class="ftxt"><b>Robuste aux outliers</b><span>Arbres de décision.</span></div></div>
+        <div class="feature reveal"><span class="emoji">🔎</span><div class="ftxt"><b>Feature importance</b><span>Interprétabilité native.</span></div></div>
+        <div class="feature reveal"><span class="emoji">🎛️</span><div class="ftxt"><b>Compatible Optuna</b><span>Tuning bayésien (30 essais).</span></div></div>
+        <div class="feature reveal"><span class="emoji">⚡</span><div class="ftxt"><b>Inférence rapide</b><span>&lt; 100 ms par requête.</span></div></div>
+        <div class="feature reveal"><span class="emoji">🏛️</span><div class="ftxt"><b>Écosystème mature</b><span>Standard de la finance.</span></div></div>
+      </div>
+      <div class="stack">
+        <div class="card reveal" data-d="4">
+          <h3>Gradient Boosting — arbres séquentiels</h3>
+          <svg viewBox="0 0 320 130" width="100%" id="boostChart"></svg>
+          <p class="muted" style="font-size:.85rem;margin-top:6px">Chaque arbre corrige les erreurs du précédent.</p>
+        </div>
+        <div class="card reveal" data-d="5">
+          <h3>❌ Pourquoi pas les autres ?</h3>
+          <ul class="bullets" style="gap:8px;font-size:.9rem">
+            <li><span class="ic">·</span><span><b>Rég. logistique :</b> ne capte pas les non-linéarités.</span></li>
+            <li><span class="ic">·</span><span><b>SVM :</b> lent, peu interprétable, scaling difficile.</span></li>
+            <li><span class="ic">·</span><span><b>Random Forest :</b> bon mais sans boosting séquentiel.</span></li>
+            <li><span class="ic">·</span><span><b>Deep Learning :</b> trop complexe, « boîte noire ».</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 12 — OPTUNA ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="cols">
+      <div>
+        <div class="heading-wrap reveal">
+          <div class="kicker">Optimisation des hyperparamètres</div>
+          <h2 class="heading">Tuning avec <span class="gold">Optuna</span></h2>
+          <div class="bar"></div>
+        </div>
+        <ul class="bullets">
+          <li class="reveal"><span class="ic">🧠</span><span><b>Optimisation bayésienne</b> — plus intelligente que Grid Search.</span></li>
+          <li class="reveal"><span class="ic">🔁</span><span><b>30 essais</b> d'optimisation automatique.</span></li>
+          <li class="reveal"><span class="ic">✅</span><span><b>Validation croisée stratifiée (5-fold)</b> pour chaque configuration.</span></li>
+        </ul>
+        <div class="card reveal" data-d="4" style="margin-top:18px">
+          <h3>Hyperparamètres optimisés</h3>
+          <div class="tier" style="grid-template-columns:1fr;border-left:none;padding:6px 0;background:none;box-shadow:none;border:none">
+            <ul>
+              <li>max_depth</li><li>learning_rate</li><li>n_estimators</li>
+              <li>subsample</li><li>colsample_bytree</li><li>reg_alpha</li><li>reg_lambda</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" data-d="3">
+        <div class="card">
+          <h3>Convergence des essais Optuna</h3>
+          <svg viewBox="0 0 360 250" width="100%" id="optunaChart"></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 13 — ARCHITECTURE ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min 30</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Architecture technique</div>
+      <h2 class="heading">Architecture de la plateforme</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="tiers">
+      <div class="tier reveal" data-d="1">
+        <div class="tname">🖥️ Frontend<small>HTML / CSS / JS pur</small></div>
+        <ul><li>Interface responsive moderne</li><li>Dashboard KPIs &amp; graphiques</li><li>Tableau d'historique</li><li>Mode démo (15 entreprises marocaines)</li></ul>
+      </div>
+      <div class="flow-arrow reveal" data-d="2">⇅ &nbsp; REST / JSON</div>
+      <div class="tier reveal" data-d="3">
+        <div class="tname">⚙️ Backend<small>FastAPI · Python</small></div>
+        <ul><li>API RESTful — 8 endpoints</li><li>Validation Pydantic</li><li>Génération de rapports PDF</li><li>Base SQLite (historique)</li></ul>
+      </div>
+      <div class="flow-arrow reveal" data-d="4">⇅ &nbsp; appel modèle</div>
+      <div class="tier reveal" data-d="5">
+        <div class="tname">🧠 ML Pipeline<small>XGBoost · joblib</small></div>
+        <ul><li>Préprocessing → Feature selection</li><li>XGBoost → SHAP</li><li>Modèle sérialisé (joblib)</li><li>Prédiction multi-classes + probabilités</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 14 — FONCTIONNALITÉS ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Fonctionnalités clés</div>
+      <h2 class="heading">Fonctionnalités</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="grid-cards grid-3">
+      <div class="feature reveal"><span class="emoji">🔍</span><div class="ftxt"><b>Analyse unitaire</b><span>Saisie manuelle des ratios financiers.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📊</span><div class="ftxt"><b>Analyse batch</b><span>Upload CSV / Excel multi-entreprises.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📈</span><div class="ftxt"><b>Dashboard</b><span>Distribution des risques &amp; tendances.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📋</span><div class="ftxt"><b>Historique</b><span>Analyses filtrables et paginées.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📄</span><div class="ftxt"><b>Export PDF</b><span>Rapport détaillé + recommandations.</span></div></div>
+      <div class="feature reveal"><span class="emoji">🎯</span><div class="ftxt"><b>Interprétabilité</b><span>SHAP values par prédiction.</span></div></div>
+    </div>
+    <div class="card reveal center" data-d="4" style="margin-top:18px">
+      <p style="font-size:1.05rem">⚡ <b class="gold">Temps réel</b> — réponse en moins de 100 ms par requête.</p>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 15 — DÉMO ============ -->
+  <section class="slide center">
+    <div class="reveal" style="font-size:4rem">🎬</div>
+    <div class="reveal kicker" style="justify-content:center">Démonstration en direct</div>
+    <h2 class="reveal heading">Place à la démo</h2>
+    <div class="grid-cards reveal" data-d="2" style="max-width:880px;margin:26px auto 0;text-align:left">
+      <div class="feature"><span class="emoji">🟢</span><div class="ftxt"><b>Scénario 1</b><span>Entreprise à risque faible.</span></div></div>
+      <div class="feature"><span class="emoji">🔴</span><div class="ftxt"><b>Scénario 2</b><span>Entreprise à risque critique.</span></div></div>
+      <div class="feature"><span class="emoji">📂</span><div class="ftxt"><b>Scénario 3</b><span>Upload batch d'un fichier CSV.</span></div></div>
+      <div class="feature"><span class="emoji">📄</span><div class="ftxt"><b>Rapport PDF</b><span>Génération &amp; export du rapport.</span></div></div>
+    </div>
+    <div class="callout reveal" data-d="4" style="max-width:880px;margin:22px auto 0">
+      <b>Note au présentateur :</b> préparer le backend lancé (<code>uvicorn main:app --port 8000</code>) + le fichier <code>test_batch.csv</code>.
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 16 — RÉSULTATS ============ -->
+  <section class="slide">
+    <span class="tbadge">1 min</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Résultats du modèle final</div>
+      <h2 class="heading">Résultats &amp; Métriques</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="stats reveal" data-d="1">
+      <div class="stat"><div class="num">94 %</div><div class="lbl">Accuracy globale</div></div>
+      <div class="stat"><div class="num">0.93</div><div class="lbl">F1-Score macro</div></div>
+      <div class="stat"><div class="num">0.97</div><div class="lbl">AUC-ROC</div></div>
+    </div>
+    <div class="cols grid-3" style="grid-template-columns:1fr 1fr 1.1fr;margin-top:22px">
+      <div class="card reveal" data-d="2">
+        <h3>Matrice de confusion</h3>
+        <svg viewBox="0 0 220 200" width="100%" id="cmFinal"></svg>
+      </div>
+      <div class="card reveal" data-d="3">
+        <h3>Courbe ROC</h3>
+        <svg viewBox="0 0 200 200" width="100%" id="rocChart"></svg>
+      </div>
+      <div class="card reveal" data-d="4">
+        <h3>Top 5 features importantes</h3>
+        <svg viewBox="0 0 320 200" width="100%" id="featChart"></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 17 — CONCLUSION ============ -->
+  <section class="slide">
+    <span class="tbadge">30 s</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Bilan</div>
+      <h2 class="heading">Conclusion</h2>
+      <div class="bar"></div>
+    </div>
+    <ul class="bullets" style="font-size:1.2rem;gap:18px">
+      <li class="reveal"><span class="ic">✅</span><span>Pipeline ML <b>complet de bout en bout</b>.</span></li>
+      <li class="reveal"><span class="ic">✅</span><span>Résolution du <b>déséquilibre</b> via SMOTE + bruit gaussien.</span></li>
+      <li class="reveal"><span class="ic">✅</span><span><b>XGBoost</b> : choix justifié par les performances et l'interprétabilité.</span></li>
+      <li class="reveal"><span class="ic">✅</span><span>Plateforme web <b>fonctionnelle et intuitive</b>.</span></li>
+      <li class="reveal"><span class="ic">✅</span><span>Applicable au <b>contexte bancaire marocain</b>.</span></li>
+    </ul>
+  </section>
+
+  <!-- ============ SLIDE 18 — PERSPECTIVES ============ -->
+  <section class="slide">
+    <span class="tbadge">30 s</span>
+    <div class="heading-wrap reveal">
+      <div class="kicker">Et après ?</div>
+      <h2 class="heading">Perspectives &amp; Améliorations</h2>
+      <div class="bar"></div>
+    </div>
+    <div class="grid-cards">
+      <div class="feature reveal"><span class="emoji">🏦</span><div class="ftxt"><b>Données réelles marocaines</b><span>Bank Al-Maghrib, OMPIC.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📝</span><div class="ftxt"><b>Données textuelles (NLP)</b><span>Rapports d'audit analysés.</span></div></div>
+      <div class="feature reveal"><span class="emoji">☁️</span><div class="ftxt"><b>Déploiement cloud</b><span>AWS / Azure en production.</span></div></div>
+      <div class="feature reveal"><span class="emoji">📡</span><div class="ftxt"><b>Monitoring du modèle</b><span>Détection de drift.</span></div></div>
+      <div class="feature reveal"><span class="emoji">🏢</span><div class="ftxt"><b>Extension PME / TPE</b><span>Features adaptées.</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 19 — MERCI ============ -->
+  <section class="slide cover">
+    <div class="reveal" style="font-size:3.4rem">🛡️</div>
+    <h1 class="reveal title" style="font-size:clamp(2rem,4.5vw,3.6rem)">Merci pour votre attention</h1>
+    <p class="reveal subtitle gold" style="margin:14px auto 0;font-size:1.6rem">Questions ?</p>
+    <div class="reveal meta" data-d="2">
+      <div><b>Étudiant(s)</b><span class="fill">[ À compléter ]</span></div>
+      <div><b>Contact</b><span class="fill">[ email ]</span></div>
+      <div><b>GitHub</b><span class="fill">achrafbaaiz/riskguard-pro</span></div>
+    </div>
+    <div class="reveal qr" data-d="3" style="margin-top:24px">
+      <svg viewBox="0 0 100 100" width="120" height="120" id="qrCode"></svg>
+    </div>
+    <p class="reveal muted" data-d="3" style="margin-top:10px;font-size:.8rem">QR → dépôt GitHub du projet</p>
+  </section>
+
+</div>
+
+<!-- Chrome -->
+<div class="footer">
+  <div class="brand">
+    <svg viewBox="0 0 24 24"><path d="M12 2 L21 5 V11 C21 16 17 20 12 22 C7 20 3 16 3 11 V5 Z" fill="#ffd700"/><path d="M8 12 l3 3 l6-6" fill="none" stroke="#0a1238" stroke-width="2" stroke-linecap="round"/></svg>
+    RiskGuard Pro
+  </div>
+  <div><span class="pg" id="pageNum">1</span> / 19</div>
+</div>
+
+<div class="nav">
+  <button id="prevBtn" aria-label="Précédent">‹</button>
+  <span class="counter" id="counter">01 / 19</span>
+  <button id="nextBtn" aria-label="Suivant">›</button>
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="hint" id="hint">← → pour naviguer · F plein écran</div>
+
+<script src="script.js"></script>
+</body>
+</html>
