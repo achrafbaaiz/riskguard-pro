@@ -46,7 +46,7 @@
 %----------------------- Page de garde ---------------------------------
 \title[RiskGuard Pro]{RiskGuard Pro}
 \subtitle{Plateforme de Détection de Risque Bancaire pour Entreprises}
-\author{[Noms des étudiants à compléter]}
+\author[BAAIZ \& TANSAOUI]{Achraf BAAIZ \and Aabir TANSAOUI}
 \institute[]{[Nom de l'université et filière à compléter]}
 \date{Année universitaire 2025-2026}
 
@@ -57,6 +57,11 @@
 %=======================================================================
 \begin{frame}[plain]
   \titlepage
+  \vspace*{-0.8cm}
+  \begin{center}\footnotesize
+    \textbf{Encadrante :} Nabila HAMDOUN\\[3pt]
+    \textbf{Membres du jury :} Nabila HAMDOUN \quad Said ACHCHAB
+  \end{center}
 \end{frame}
 
 %=======================================================================
@@ -328,7 +333,8 @@
           \textbf{données tabulaires}.
   \end{itemize}
   \vfill
-  \centering
+  \begin{center}
+  \resizebox{0.92\textwidth}{!}{%
   \begin{tikzpicture}[
       node distance=8mm,
       arbre/.style={rectangle,rounded corners,draw=rgblue,fill=rgblue!12,
@@ -345,7 +351,10 @@
     \draw[-{Stealth}] (t2) -- node[above,err]{erreurs} (t3);
     \draw[-{Stealth}] (t3) -- (dots);
     \draw[-{Stealth}] (dots) -- (pred);
-  \end{tikzpicture}
+  \end{tikzpicture}%
+  }
+  \end{center}
+  \vfill
 \end{frame}
 
 %=======================================================================
@@ -497,9 +506,9 @@
   \end{itemize}
   \begin{exampleblock}{Métriques de performance}
     \centering
-    ROC-AUC : \textbf{[à compléter]} \quad
-    F1-Score : \textbf{[à compléter]} \quad
-    Recall : \textbf{[à compléter]}
+    ROC-AUC : \textbf{98,6 \%} \quad
+    F1-Score : \textbf{89,2 \%} \quad
+    Recall : \textbf{89,8 \%}
   \end{exampleblock}
   \begin{itemize}
     \item Le modèle détecte efficacement les entreprises à risque tout en
@@ -555,8 +564,7 @@
 \begin{frame}[plain]
   \centering
   \vfill
-  {\Huge \textcolor{rgblue}{\textbf{Merci pour votre attention}}}\\[1.2cm]
-  {\Large Questions ?}
+  {\Huge \textcolor{rgblue}{\textbf{Merci pour votre attention}}}
   \vfill
 \end{frame}
 
