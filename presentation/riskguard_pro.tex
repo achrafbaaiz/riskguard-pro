@@ -1,0 +1,568 @@
+%=======================================================================
+%  RiskGuard Pro - Presentation de fin d'annee
+%  Theme Beamer : Madrid (structure = blue)
+%
+%  Compilation recommandee :
+%      pdflatex riskguard_pro_presentation.tex
+%      pdflatex riskguard_pro_presentation.tex   (2x pour les references)
+%
+%  Necessite le package TikZ (inclus dans toute distribution TeX Live /
+%  MiKTeX standard). Aucune image externe n'est requise pour compiler
+%  (les captures d'ecran de la slide "Demonstration" sont en commentaire).
+%=======================================================================
+\documentclass[10pt,aspectratio=169]{beamer}
+
+%----------------------- Theme & couleurs ------------------------------
+\usetheme{Madrid}
+\usecolortheme[named=blue]{structure}   % couleur principale : bleu
+\setbeamertemplate{navigation symbols}{} % pas de symboles de navigation
+\setbeamertemplate{caption}[numbered]
+
+%----------------------- Encodage & langue -----------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+
+%----------------------- Packages utiles -------------------------------
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
+
+%----------------------- Affichage du plan -----------------------------
+\AtBeginSection[]{
+  \begin{frame}{Plan de la présentation}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+%----------------------- Couleurs personnalisees -----------------------
+\definecolor{rgblue}{RGB}{20,80,160}
+\definecolor{rggreen}{RGB}{40,150,80}
+\definecolor{rgred}{RGB}{200,60,60}
+\definecolor{rggray}{RGB}{120,120,120}
+
+%----------------------- Page de garde ---------------------------------
+\title[RiskGuard Pro]{RiskGuard Pro}
+\subtitle{Plateforme de Détection de Risque Bancaire pour Entreprises}
+\author[BAAIZ \& TANSAOUI]{Achraf BAAIZ \and Aabir TANSAOUI}
+\institute[ENSIAS]{École Nationale Supérieure d'Informatique et d'Analyse des Systèmes (ENSIAS)\\ Filière IDF}
+\date{Année universitaire 2025-2026}
+
+\begin{document}
+
+%=======================================================================
+% SLIDE 1 - Page de garde
+%=======================================================================
+\begin{frame}[plain]
+  \titlepage
+  \vspace*{-0.8cm}
+  \begin{center}\footnotesize
+    \textbf{Encadrante :} Nabila HAMDOUN\\[3pt]
+    \textbf{Membres du jury :} Nabila HAMDOUN \quad Said ACHCHAB
+  \end{center}
+\end{frame}
+
+%=======================================================================
+% SLIDE 2 - Plan
+%=======================================================================
+\begin{frame}{Plan de la présentation}
+  \begin{enumerate}
+    \item Introduction et Problématique
+    \item Objectifs
+    \item Prétraitement des données
+    \item Génération de données synthétiques
+    \item Le modèle XGBoost
+    \item Architecture globale de la plateforme
+    \item Fonctionnalités de la plateforme
+    \item Résultats
+    \item Conclusion et perspectives
+  \end{enumerate}
+\end{frame}
+
+%=======================================================================
+\section{Introduction et Problématique}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 3 - Introduction
+%=======================================================================
+\begin{frame}{Introduction}
+  \begin{itemize}
+    \item Le risque de défaillance des entreprises est une préoccupation
+          majeure pour le secteur bancaire.
+    \pause
+    \item Les banques doivent évaluer la solidité financière de leurs
+          clients avant d'accorder des crédits.
+    \pause
+    \item Les méthodes classiques reposent sur l'analyse manuelle des
+          bilans, ce qui est \alert{lent et subjectif}.
+    \pause
+    \item L'intelligence artificielle offre une alternative \alert{plus
+          rapide et plus objective}.
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+% SLIDE 4 - Problematique
+%=======================================================================
+\begin{frame}{Problématique}
+  \begin{block}{}
+    \centering
+    \large
+    \textbf{« Comment peut-on prédire automatiquement le niveau de
+    risque de défaillance d'une entreprise à partir de ses indicateurs
+    financiers ? »}
+  \end{block}
+  \vfill
+  \begin{itemize}
+    \item \textbf{Difficulté :} les cas de faillite sont très rares dans
+          les données ($\sim$3\%).
+    \pause
+    \item \textbf{Besoin :} un outil fiable, interprétable et facile à
+          utiliser.
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+\section{Objectifs}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 5 - Objectifs
+%=======================================================================
+\begin{frame}{Objectifs du projet}
+  \begin{itemize}
+    \item Développer un modèle de \textit{Machine Learning} capable de
+          prédire le risque de faillite.
+    \pause
+    \item Créer une plateforme web permettant aux analystes d'utiliser ce
+          modèle facilement.
+    \pause
+    \item Permettre l'analyse \textbf{individuelle} et \textbf{en lot
+          (batch)} des entreprises.
+    \pause
+    \item Fournir des résultats clairs avec 4 niveaux de risque :
+      \begin{itemize}
+        \item[\textcolor{rggreen}{$\blacksquare$}] Faible
+        \item[\textcolor{orange}{$\blacksquare$}] Modéré
+        \item[\textcolor{red}{$\blacksquare$}] Élevé
+        \item[\textcolor{rgred}{$\blacksquare$}] Critique
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+\section{Prétraitement des données}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 6 - Presentation du dataset
+%=======================================================================
+\begin{frame}{Le jeu de données}
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      \begin{itemize}
+        \item \textbf{Source :} dataset public de prédiction de faillite
+              d'entreprises.
+        \item Contient environ \textbf{6 800 entreprises}.
+        \item \textbf{96 ratios financiers} par entreprise (rentabilité,
+              liquidité, endettement, etc.).
+        \item Variable cible « Bankrupt? » :
+              \textbf{0} (saine) ou \textbf{1} (en faillite).
+        \item \alert{Problème : seulement $\sim$3\% d'entreprises en
+              faillite} (données très déséquilibrées).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.9]
+        % axes
+        \draw[->] (0,0) -- (0,4.2);
+        \draw[->] (0,0) -- (4.2,0);
+        % barre saines 97%
+        \fill[rggreen] (0.6,0) rectangle (1.6,3.88);
+        \node[above] at (1.1,3.88) {\small 97\%};
+        \node[below,align=center] at (1.1,0) {\scriptsize Saines};
+        % barre faillite 3%
+        \fill[rgred] (2.6,0) rectangle (3.6,0.36);
+        \node[above] at (3.1,0.36) {\small 3\%};
+        \node[below,align=center] at (3.1,0) {\scriptsize Faillite};
+        \node[rotate=90,rggray] at (-0.4,2) {\scriptsize Proportion};
+      \end{tikzpicture}\\[2pt]
+      {\scriptsize Déséquilibre des classes}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%=======================================================================
+% SLIDE 7 - Pretraitement des donnees
+%=======================================================================
+\begin{frame}{Prétraitement des données}
+  \textbf{Les étapes réalisées :}
+  \begin{enumerate}
+    \item \textbf{Nettoyage :} suppression des valeurs infinies et
+          remplacement des valeurs manquantes par la médiane.
+    \pause
+    \item \textbf{Valeurs aberrantes :} limitation (\textit{capping}) des
+          valeurs extrêmes.
+    \pause
+    \item \textbf{Sélection des variables :} parmi les 96 ratios, nous
+          avons retenu les \alert{10 indicateurs les plus pertinents}.
+    \pause
+    \item Ces 10 variables ont été choisies selon leur \textbf{pouvoir
+          discriminant} entre entreprises saines et en difficulté.
+  \end{enumerate}
+\end{frame}
+
+%=======================================================================
+% SLIDE 7bis - Liste des 10 variables retenues
+%=======================================================================
+\begin{frame}{Les 10 variables retenues}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{enumerate}
+        \small
+        \item Net Income to Total Assets
+        \item Retained Earnings to Total Assets
+        \item Persistent EPS in the Last Four Seasons
+        \item Net worth / Assets
+        \item Debt ratio \%
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{enumerate}
+        \small
+        \setcounter{enumi}{5}
+        \item Borrowing dependency
+        \item Liability to Equity
+        \item Total debt / Total net worth
+        \item Current Ratio
+        \item Continuous interest rate (after tax)
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{exampleblock}{}
+    \centering
+    \small Rentabilité \quad$\bullet$\quad Structure financière
+    \quad$\bullet$\quad Liquidité \quad$\bullet$\quad Endettement
+  \end{exampleblock}
+\end{frame}
+
+%=======================================================================
+\section{Génération de données synthétiques}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 8 - Donnees synthetiques : Pourquoi ?
+%=======================================================================
+\begin{frame}{Pourquoi ajouter des données synthétiques ?}
+  \begin{itemize}
+    \item Avec seulement \textbf{3\%} de cas de faillite, le modèle
+          n'apprend pas correctement à détecter les entreprises à risque.
+    \pause
+    \item Il a tendance à toujours prédire « saine », car c'est le cas
+          majoritaire.
+    \pause
+  \end{itemize}
+  \begin{alertblock}{Solution}
+    Créer de nouvelles données artificielles pour \textbf{équilibrer les
+    classes}.
+  \end{alertblock}
+  \pause
+  \begin{itemize}
+    \item Ces données sont générées \alert{uniquement à partir des
+          données d'entraînement} (pas de fuite d'information).
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+% SLIDE 9 - Donnees synthetiques : Comment ?
+%=======================================================================
+\begin{frame}{Génération des données synthétiques}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \begin{itemize}
+        \small
+        \item \textbf{Méthode :} interpolation entre profils
+              d'entreprises saines et en faillite.
+        \item Création de profils \textbf{intermédiaires} en mélangeant
+              progressivement les caractéristiques des deux groupes.
+        \item Ajout d'un léger \textbf{bruit gaussien} pour rendre les
+              données plus réalistes et variées.
+        \item \textbf{Résultat :} 3 000 nouvelles observations ajoutées
+              aux données d'entraînement.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1]
+        \node[circle,fill=rggreen,inner sep=3pt,label=below:{\scriptsize Saine}] (a) at (0,0) {};
+        \node[circle,fill=rgred,inner sep=3pt,label=below:{\scriptsize Faillite}] (b) at (4,0) {};
+        \draw[dashed,rggray] (a) -- (b);
+        \node[circle,fill=orange,inner sep=2.5pt] (m) at (2,0) {};
+        \node[above=2pt] at (m) {\scriptsize Profil interpolé};
+        % bruit gaussien
+        \draw[->,rgblue,thick] (2,0.55) .. controls (2.6,1.1) .. (2.9,0.7);
+        \node[rgblue,right] at (2.9,0.85) {\scriptsize bruit gaussien};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%=======================================================================
+\section{Le modèle XGBoost}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 10 - XGBoost : Principe
+%=======================================================================
+\begin{frame}{Le modèle XGBoost}
+  \vfill
+  \begin{center}
+  \begin{minipage}{0.82\textwidth}
+  \begin{itemize}
+    \small
+    \item \textbf{XGBoost} = \textit{eXtreme Gradient Boosting}.
+    \item C'est un \textbf{ensemble d'arbres de décision} qui travaillent
+          en équipe.
+    \item \textbf{Principe :} chaque nouvel arbre corrige les erreurs des
+          précédents.
+    \item Les arbres sont ajoutés un par un, chacun se concentrant sur les
+          cas mal classés.
+    \item L'un des algorithmes les plus performants pour les
+          \textbf{données tabulaires}.
+  \end{itemize}
+  \end{minipage}
+  \end{center}
+  \vfill
+  \begin{center}
+  \resizebox{0.92\textwidth}{!}{%
+  \begin{tikzpicture}[
+      node distance=8mm,
+      arbre/.style={rectangle,rounded corners,draw=rgblue,fill=rgblue!12,
+                    minimum width=1.3cm,minimum height=0.8cm,font=\scriptsize},
+      err/.style={font=\scriptsize\itshape,rggray},
+      fin/.style={rectangle,rounded corners,draw=rggreen,fill=rggreen!15,
+                  minimum width=1.6cm,minimum height=0.8cm,font=\scriptsize}]
+    \node[arbre] (t1) {Arbre 1};
+    \node[arbre,right=of t1] (t2) {Arbre 2};
+    \node[arbre,right=of t2] (t3) {Arbre 3};
+    \node[right=6mm of t3,font=\scriptsize] (dots) {$\cdots$};
+    \node[fin,right=6mm of dots] (pred) {Prédiction\\finale};
+    \draw[-{Stealth}] (t1) -- node[above,err]{erreurs} (t2);
+    \draw[-{Stealth}] (t2) -- node[above,err]{erreurs} (t3);
+    \draw[-{Stealth}] (t3) -- (dots);
+    \draw[-{Stealth}] (dots) -- (pred);
+  \end{tikzpicture}%
+  }
+  \end{center}
+  \vfill
+\end{frame}
+
+%=======================================================================
+% SLIDE 11 - Pourquoi XGBoost ?
+%=======================================================================
+\begin{frame}{Pourquoi avoir choisi XGBoost ?}
+  \begin{itemize}
+    \item Très \textbf{performant} sur les données structurées (tableaux
+          financiers).
+    \pause
+    \item Gère bien le \textbf{déséquilibre des classes} grâce à un
+          paramètre de pondération.
+    \pause
+    \item \textbf{Rapide} à l'entraînement et à la prédiction.
+    \pause
+    \item Fournit l'\textbf{importance des variables}
+          (interprétabilité).
+    \pause
+    \item Intègre une \textbf{régularisation} pour éviter le
+          sur-apprentissage.
+    \pause
+    \item Algorithme reconnu et largement utilisé dans l'\textbf{industrie
+          bancaire}.
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+\section{Architecture globale de la plateforme}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 12 - Architecture globale
+%=======================================================================
+\begin{frame}{Architecture de la plateforme}
+  \centering
+  \begin{tikzpicture}[
+      bloc/.style={rectangle,rounded corners,draw,thick,minimum width=3.2cm,
+                   minimum height=2.4cm,align=center,font=\scriptsize},
+      titre/.style={font=\small\bfseries}]
+    % Frontend
+    \node[bloc,draw=rgblue,fill=rgblue!10] (front) at (0,0)
+      {\textcolor{rgblue}{\bfseries Frontend}\\[2pt]
+       \textit{Interface utilisateur}\\[3pt]
+       Pages HTML / CSS / JS\\
+       Saisie des données\\
+       Visualisation des\\ résultats};
+    % Backend
+    \node[bloc,draw=rggreen,fill=rggreen!10] (back) at (5,0)
+      {\textcolor{rggreen}{\bfseries Backend}\\[2pt]
+       \textit{API -- FastAPI}\\[3pt]
+       Reçoit les requêtes\\
+       Lance les prédictions\\
+       Historique (SQLite)};
+    % Modele
+    \node[bloc,draw=rgred,fill=rgred!10] (model) at (10,0)
+      {\textcolor{rgred}{\bfseries Modèle ML}\\[2pt]
+       \textit{Pipeline + XGBoost}\\[3pt]
+       Prétraitement\\
+       Modèle entraîné\\
+       Probabilité + niveau\\ de risque};
+    % fleches bidirectionnelles
+    \draw[{Stealth}-{Stealth},thick,rggray] (front) -- (back);
+    \draw[{Stealth}-{Stealth},thick,rggray] (back) -- (model);
+  \end{tikzpicture}
+  \vfill
+  {\footnotesize Frontend $\leftrightarrow$ API FastAPI
+   $\leftrightarrow$ Modèle XGBoost}
+\end{frame}
+
+%=======================================================================
+\section{Fonctionnalités de la plateforme}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 13 - Fonctionnalites
+%=======================================================================
+\begin{frame}{Fonctionnalités principales}
+  \begin{itemize}
+    \item \textbf{Analyse individuelle :} saisir les ratios financiers
+          d'une entreprise et obtenir son niveau de risque.
+    \pause
+    \item \textbf{Analyse en lot (batch) :} importer un fichier CSV ou
+          Excel contenant plusieurs entreprises.
+    \pause
+    \item \textbf{Historique :} consulter toutes les analyses
+          précédentes.
+    \pause
+    \item \textbf{Export CSV :} exporter les résultats pour une
+          utilisation externe.
+    \pause
+    \item \textbf{Export PDF :} générer un rapport détaillé pour chaque
+          analyse.
+    \pause
+    \item \textbf{Dashboard :} vue d'ensemble avec statistiques et
+          graphiques.
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+% SLIDE 14 - Demonstration (captures d'ecran)
+%=======================================================================
+\begin{frame}{Aperçu de la plateforme}
+  \begin{columns}[T]
+    \begin{column}{0.33\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=4.6cm,keepaspectratio]{capture1.png}\\[4pt]
+      {\scriptsize Formulaire d'analyse}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=4.6cm,keepaspectratio]{capture2.png}\\[4pt]
+      {\scriptsize Résultat \& niveau de risque}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=4.6cm,keepaspectratio]{capture3.png}\\[4pt]
+      {\scriptsize Page d'historique}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%=======================================================================
+\section{Résultats}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 15 - Resultats
+%=======================================================================
+\begin{frame}{Résultats obtenus}
+  \begin{itemize}
+    \item Le modèle a été évalué sur des \textbf{données réelles
+          uniquement} (aucune donnée synthétique dans le test).
+    \item Métriques obtenues sur le jeu de test :
+      \begin{itemize}
+        \item \textbf{ROC-AUC :} capacité du modèle à distinguer les deux
+              classes.
+        \item \textbf{F1-Score :} équilibre entre précision et rappel.
+        \item \textbf{Recall (rappel) :} capacité à détecter les vrais cas
+              de faillite.
+      \end{itemize}
+  \end{itemize}
+  \begin{exampleblock}{Métriques de performance}
+    \centering
+    ROC-AUC : \textbf{98,6 \%} \quad
+    F1-Score : \textbf{89,2 \%} \quad
+    Recall : \textbf{89,8 \%}
+  \end{exampleblock}
+  \begin{itemize}
+    \item Le modèle détecte efficacement les entreprises à risque tout en
+          \textbf{limitant les fausses alertes}.
+    \item Variables les plus importantes : \textbf{Debt ratio},
+          \textbf{Net Income to Total Assets}, \textbf{Current Ratio}.
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+\section{Conclusion et perspectives}
+%=======================================================================
+
+%=======================================================================
+% SLIDE 16 - Conclusion
+%=======================================================================
+\begin{frame}{Conclusion}
+  \begin{itemize}
+    \item Nous avons développé une \textbf{plateforme complète} de
+          détection de risque bancaire.
+    \pause
+    \item Le prétraitement et la génération de données synthétiques ont
+          permis de résoudre le \textbf{problème du déséquilibre}.
+    \pause
+    \item \textbf{XGBoost} offre d'excellentes performances tout en
+          restant \textbf{interprétable}.
+    \pause
+    \item La plateforme est \textbf{fonctionnelle} et prête à être
+          utilisée par des analystes financiers.
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+% SLIDE 17 - Perspectives
+%=======================================================================
+\begin{frame}{Perspectives}
+  \begin{itemize}
+    \item Intégrer des \textbf{données réelles d'entreprises marocaines}.
+    \pause
+    \item Ajouter un \textbf{suivi dans le temps} (monitoring du modèle).
+    \pause
+    \item \textbf{Déployer} la plateforme sur le cloud pour un accès à
+          distance.
+    \pause
+    \item Enrichir avec d'autres sources de données (rapports textuels,
+          données sectorielles).
+  \end{itemize}
+\end{frame}
+
+%=======================================================================
+% SLIDE 18 - Fin
+%=======================================================================
+\begin{frame}[plain]
+  \centering
+  \vfill
+  {\Huge \textcolor{rgblue}{\textbf{Merci pour votre attention}}}
+  \vfill
+\end{frame}
+
+\end{document}
